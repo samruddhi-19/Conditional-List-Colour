@@ -1,0 +1,20 @@
+{
+  "name": "conditional-list-colour-trello-powerup",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Conditional List Colour Power-Up for Trello - Automatically color-code lists based on title rules, card count limits, overdue cards, and custom themes",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0"
+  }
+}

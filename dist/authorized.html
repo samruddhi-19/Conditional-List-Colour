@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connecting Conditional List Colors to Trello…</title>
+    <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #1d2125;
+        --card-bg: #22272b;
+        --border: rgba(255, 255, 255, 0.1);
+        --text: #dee4ea;
+        --text-muted: #9fadbc;
+        --primary-blue: #0c66e4;
+        --accent-emerald: #10b981;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 32px 20px;
+        background: var(--bg);
+        background-image: 
+          radial-gradient(circle at 50% 25%, rgba(12, 102, 228, 0.15) 0%, transparent 65%),
+          radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.1) 0%, transparent 55%);
+        color: var(--text);
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 90vh;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 36px 28px;
+        max-width: 380px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+      }
+
+      .logo-icon {
+        width: 72px;
+        height: 72px;
+        margin-bottom: 20px;
+      }
+
+      .spinner-wrapper {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        margin-bottom: 18px;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(12, 102, 228, 0.25);
+        border-top-color: #579dff;
+        border-radius: 50%;
+        animation: spin 0.85s cubic-bezier(0.6, 0.2, 0.4, 0.9) infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .title {
+        font-family: "Outfit", sans-serif;
+        font-size: 19px;
+        font-weight: 700;
+        margin: 0 0 8px;
+        color: #ffffff;
+      }
+
+      .subtitle {
+        font-size: 13.5px;
+        color: var(--text-muted);
+        margin: 0;
+        line-height: 1.45;
+        max-width: 300px;
+      }
+
+      .status-pill {
+        margin-top: 20px;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        background: #282e33;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 11.5px;
+        font-weight: 500;
+        color: #9fadbc;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent-emerald);
+        animation: pulse 1.4s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 0.4; }
+        50% { opacity: 1; transform: scale(1.2); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <img src="./icons/icon.svg" alt="Conditional List Colors" class="logo-icon" />
+      <div class="spinner-wrapper" id="spinner-container">
+        <div class="spinner" id="spinner"></div>
+      </div>
+      <h2 class="title" id="status-title">Connecting Conditional List Colors…</h2>
+      <p class="subtitle" id="status-desc">Validating your Trello authorization credentials.</p>
+      <div class="status-pill" id="status-pill">
+        <span class="dot"></span>
+        <span>Secure Handshake</span>
+      </div>
+    </div>
+    <script src="./authorized.js"></script>
+  </body>
+</html>

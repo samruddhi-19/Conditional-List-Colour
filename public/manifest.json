@@ -1,0 +1,16 @@
+{
+  "name": "Conditional List Colors",
+  "details": "Automatically style and color-code Trello lists based on title keywords, card limits, overdue tasks, or custom color conditions.",
+  "html": "powerup.html",
+  "icon": {
+    "url": "./icons/icon.svg"
+  },
+  "author": "Explified",
+  "capabilities": [
+    "board-buttons",
+    "show-settings",
+    "show-authorization",
+    "authorization-status",
+    "list-actions"
+  ]
+}
