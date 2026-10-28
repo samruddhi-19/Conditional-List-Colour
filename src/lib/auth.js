@@ -6,8 +6,8 @@
 // by any other board member.
 
 export const APP_KEY =
-  import.meta.env.VITE_TRELLO_APP_KEY || "3e288f2527bfbb6b61a6fcf3979917ef";
-export const APP_NAME = "Conditional List Colors";
+  import.meta.env.VITE_TRELLO_APP_KEY || "36aaae2ff57649840580d01a41f456e5";
+export const APP_NAME = "Conditional List Colour";
 
 // Shared message tag validated by authorized.js and AuthPopup.jsx
 export const AUTH_MESSAGE_SOURCE = "conditional-list-color-auth";
@@ -16,31 +16,39 @@ export const BROADCAST_CHANNEL_NAME = "conditional_list_color_auth";
 const TOKEN_KEY = "token";
 
 /**
- * Retrieves the stored token from Trello member-private storage with localStorage fallback.
+ * Retrieves the stored token from Trello member-private storage.
+ * If running in Trello, Trello member-private storage is the authoritative source.
+ * When a user removes personal data in Trello, this returns null.
  * @param {object} t - Trello Power-Up client instance
  * @returns {Promise<string|null>}
  */
 export async function getToken(t) {
-  let token = null;
+  // 1. Authoritative source: Trello member-scoped private storage
   if (t && typeof t.get === "function") {
     try {
-      token = await t.get("member", "private", TOKEN_KEY);
+      const token = await t.get("member", "private", TOKEN_KEY);
+      if (token) {
+        return token;
+      }
+      // If Trello returned null/undefined, the user has NOT authorized
+      // or has clicked "Remove personal data" in Trello.
+      // Clean up localStorage to prevent resurrecting deleted credentials:
+      try {
+        localStorage.removeItem("trello_token");
+        localStorage.removeItem("trello_token_time");
+      } catch (e) {}
+      return null;
     } catch (e) {
-      token = null;
+      return null;
     }
   }
 
-  if (!token) {
-    try {
-      token = localStorage.getItem("trello_token");
-      // If found in localStorage, backfill into Trello member storage for future calls
-      if (token && t && typeof t.set === "function") {
-        t.set("member", "private", TOKEN_KEY, token).catch(() => {});
-      }
-    } catch (e) {}
+  // 2. Standalone / local demo fallback (only when 't' is not available)
+  try {
+    return localStorage.getItem("trello_token") || null;
+  } catch (e) {
+    return null;
   }
-
-  return token || null;
 }
 
 /**
@@ -53,14 +61,20 @@ export async function saveToken(t, token) {
   try {
     if (token) {
       localStorage.setItem("trello_token", token);
+      localStorage.setItem("trello_token_time", Date.now().toString());
     } else {
       localStorage.removeItem("trello_token");
+      localStorage.removeItem("trello_token_time");
     }
   } catch (e) {}
 
   if (t && typeof t.set === "function") {
     try {
-      await t.set("member", "private", TOKEN_KEY, token);
+      if (token) {
+        await t.set("member", "private", TOKEN_KEY, token);
+      } else if (typeof t.remove === "function") {
+        await t.remove("member", "private", TOKEN_KEY);
+      }
     } catch (e) {}
   }
 }
@@ -73,11 +87,16 @@ export async function saveToken(t, token) {
 export async function clearToken(t) {
   try {
     localStorage.removeItem("trello_token");
+    localStorage.removeItem("trello_token_time");
   } catch (e) {}
 
   if (t && typeof t.remove === "function") {
     try {
       await t.remove("member", "private", TOKEN_KEY);
+    } catch (e) {}
+  } else if (t && typeof t.set === "function") {
+    try {
+      await t.set("member", "private", TOKEN_KEY, null);
     } catch (e) {}
   }
 }
@@ -93,7 +112,7 @@ export async function isAuthorized(t) {
 }
 
 /**
- * Constructs the Trello OAuth authorization URL for Conditional List Colors.
+ * Constructs the Trello OAuth authorization URL for Conditional List Colour.
  * @param {string} returnUrl - Full URL to authorized.html on the current origin
  * @returns {string} Complete authorization URL
  */

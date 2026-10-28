@@ -3,53 +3,43 @@ import AuthPopup from "../auth/AuthPopup.jsx";
 import RulesModal from "../rules/RulesModal.jsx";
 import SettingsPopup from "../settings/SettingsPopup.jsx";
 import { getRules, evaluateListRule } from "../lib/rulesStorage.js";
+import { isAuthorized } from "../lib/auth.js";
 import { PrismListEngineGraphic, CloseIcon } from "../lib/icons.jsx";
 import "./demo.css";
 
-// Sample board lists mirroring user's Trello screenshot
+// Board lists matching the Target Lists configured in the Rule Studio
 const INITIAL_LISTS = [
   {
     id: "list-1",
-    name: "Cardlytics",
+    name: "Sprint Backlog",
     cards: [
-      { id: "c1", title: "Overdue cards", count: "3", tag: "Urgent", overdue: true },
-      { id: "c2", title: "Assigned to me on all Workspace boards", count: "14" },
-      { id: "c3", title: "new card", due: "May 18", age: "201d" },
+      { id: "c1", title: "API Gateway rate limiting", count: "3", tag: "High", priority: "High" },
+      { id: "c2", title: "Database indexing migration", count: "14", tag: "Medium", priority: "Medium" },
+      { id: "c3", title: "Update copyright & docs", due: "May 18", age: "201d", tag: "Low", priority: "Low" },
     ],
   },
   {
     id: "list-2",
-    name: "Trello Starter Guide",
+    name: "In Progress",
     cards: [
-      { id: "c4", title: "Dashboard", count: "6" },
-      { id: "c5", title: "Dashboard", count: "6" },
-      { id: "c6", title: "Dashboard", count: "6" },
+      { id: "c4", title: "Critical payment auth failure", count: "6", tag: "Urgent", priority: "Urgent", overdue: true },
+      { id: "c5", title: "Component theme switching", count: "6", tag: "Medium", priority: "Medium" },
     ],
   },
   {
     id: "list-3",
-    name: "Today",
+    name: "Review & QA",
     cards: [
-      { id: "c7", title: "Today setup card", count: "5" },
-      { id: "c8", title: "HIII", gradient: true },
-      { id: "c9", title: "test checklist card", checkItems: "1/3", age: "218d" },
+      { id: "c6", title: "Dark mode CSS contrast audit", count: "5", tag: "Medium", priority: "Medium" },
+      { id: "c7", title: "Keyboard navigation tests", due: "Apr 12", tag: "Low", priority: "Low" },
     ],
   },
   {
     id: "list-4",
-    name: "This Week",
+    name: "Done / Deployed",
     cards: [
-      { id: "c10", title: "Weekly review items", count: "5" },
-      { id: "c11", title: "new card release", age: "327d" },
-      { id: "c12", title: "test3", due: "Apr 12", blocker: true },
-    ],
-  },
-  {
-    id: "list-5",
-    name: "Done",
-    cards: [
-      { id: "c13", title: "OAuth handshake protocol", done: true },
-      { id: "c14", title: "Vite build configuration", done: true },
+      { id: "c8", title: "OAuth handshake protocol", done: true, tag: "Low", priority: "Low" },
+      { id: "c9", title: "Vite build configuration", done: true, tag: "Low", priority: "Low" },
     ],
   },
 ];
@@ -57,15 +47,16 @@ const INITIAL_LISTS = [
 export default function DemoBoard() {
   const [lists, setLists] = useState(INITIAL_LISTS);
   const [rules, setRules] = useState([]);
-  const [showPopup, setShowPopup] = useState(true);
-  const [activeView, setActiveView] = useState("board"); // board | rules | settings | standalone_auth
+  const [showPopup, setShowPopup] = useState(false);
+  const [activeView, setActiveView] = useState("rules"); // default to Rule Studio!
   const [authed, setAuthed] = useState(false);
 
   // Mock Trello object for standalone / demo testing
   const mockT = {
     get: async (scope, visibility, key) => {
       try {
-        return JSON.parse(localStorage.getItem(`demo_${scope}_${key}`));
+        const val = localStorage.getItem(`demo_${scope}_${key}`);
+        return val ? JSON.parse(val) : null;
       } catch (e) {
         return null;
       }
@@ -82,6 +73,7 @@ export default function DemoBoard() {
     },
     sizeTo: () => Promise.resolve(),
     closePopup: () => setShowPopup(false),
+    closeModal: () => setActiveView("board"),
     modal: () => setActiveView("rules"),
     popup: () => setShowPopup(true),
   };
@@ -104,28 +96,27 @@ export default function DemoBoard() {
       {/* Top Demo Toolbar */}
       <div className="demo-control-bar">
         <div className="demo-title-tag">
-          <PrismListEngineGraphic activeColor="#6366f1" width={24} height={18} />
-          <span>Conditional List Colour Power-Up</span>
-          <span className="demo-badge">Interactive Demo &amp; Preview</span>
+          <PrismListEngineGraphic activeColor="#3b82f6" width={24} height={18} />
+          <span>Conditional List Color Rule Studio</span>
+          <span className="demo-badge">Trello Power-Up</span>
         </div>
 
         <div className="demo-actions">
           <button
             type="button"
-            className={`demo-btn ${activeView === "board" ? "active" : ""}`}
-            onClick={() => {
-              setActiveView("board");
-              setShowPopup(true);
-            }}
-          >
-            Board View (Screenshot Match)
-          </button>
-          <button
-            type="button"
             className={`demo-btn ${activeView === "rules" ? "active" : ""}`}
             onClick={() => setActiveView("rules")}
           >
-            Rules Manager
+            Rule Studio (Modal)
+          </button>
+          <button
+            type="button"
+            className={`demo-btn ${activeView === "board" ? "active" : ""}`}
+            onClick={() => {
+              setActiveView("board");
+            }}
+          >
+            Board Live View
           </button>
           <button
             type="button"
@@ -139,7 +130,7 @@ export default function DemoBoard() {
             className={`demo-btn ${showPopup ? "active" : ""}`}
             onClick={() => setShowPopup(!showPopup)}
           >
-            {showPopup ? "Hide Auth Popup" : "Open Auth Popup"}
+            {showPopup ? "Hide Auth Popup" : "Auth Popup"}
           </button>
         </div>
       </div>
@@ -163,14 +154,14 @@ export default function DemoBoard() {
         </div>
         <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
           <span style={{ fontSize: "12px", color: "#9fadbc" }}>
-            {authed ? "● Connected" : "○ Not Authorized"}
+            {authed ? "● Connected" : "○ Local Mode"}
           </span>
           <div
             style={{
               width: 28,
               height: 28,
               borderRadius: "50%",
-              background: "#6366f1",
+              background: "#1d4ed8",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -186,50 +177,45 @@ export default function DemoBoard() {
 
       {/* Trello Board Header Bar */}
       <div className="board-header-bar">
-        <h1 className="board-title">My Trello board</h1>
+        <h1 className="board-title">Sprint Engineering Board</h1>
         <div className="board-actions">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveView("board");
-              setShowPopup(true);
-            }}
-            className="board-btn-pu"
-          >
-            <PrismListEngineGraphic activeColor="#6366f1" width={18} height={14} />
-            <span>Conditional List Colour</span>
-          </button>
           <button
             type="button"
             onClick={() => setActiveView("rules")}
             className="board-btn-pu"
           >
-            Configure Rules
+            <PrismListEngineGraphic activeColor="#3b82f6" width={18} height={14} />
+            <span>Conditional List Color Rule Studio</span>
           </button>
         </div>
       </div>
+
+      {/* Rule Studio View */}
+      {activeView === "rules" && (
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          <RulesModal t={mockT} onClose={() => setActiveView("board")} />
+        </div>
+      )}
 
       {/* Board Lists Canvas */}
       {activeView === "board" && (
         <div className="board-canvas">
           {lists.map((list) => {
             const match = evaluateListRule(list, list.cards, rules);
-            const listBgStyle =
-              match && (match.applyTo === "both" || match.applyTo === "background")
-                ? {
-                    backgroundColor: `${match.color}1c`,
-                    borderColor: `${match.color}66`,
-                    boxShadow: `0 4px 16px ${match.color}26`,
-                  }
-                : {};
+            const listBgStyle = match
+              ? {
+                  backgroundColor: `${match.color}1c`,
+                  borderColor: `${match.color}66`,
+                  boxShadow: `0 4px 16px ${match.color}26`,
+                }
+              : {};
 
-            const headerStyle =
-              match && (match.applyTo === "both" || match.applyTo === "header")
-                ? {
-                    borderLeft: `4px solid ${match.color}`,
-                    paddingLeft: "8px",
-                  }
-                : {};
+            const headerStyle = match
+              ? {
+                  borderLeft: `4px solid ${match.color}`,
+                  paddingLeft: "8px",
+                }
+              : {};
 
             return (
               <div key={list.id} className="trello-list" style={listBgStyle}>
@@ -260,10 +246,15 @@ export default function DemoBoard() {
                         <div
                           className="card-pill-tag"
                           style={{
-                            background: c.overdue
-                              ? "rgba(239, 68, 68, 0.25)"
-                              : "#3b82f6",
-                            color: c.overdue ? "#fca5a5" : "#fff",
+                            background:
+                              c.tag === "Urgent"
+                                ? "#c9372c"
+                                : c.tag === "High"
+                                ? "#e56910"
+                                : c.tag === "Medium"
+                                ? "#946f00"
+                                : "#4c6b1f",
+                            color: "#fff",
                           }}
                         >
                           {c.tag}
@@ -273,7 +264,7 @@ export default function DemoBoard() {
                       {c.count && (
                         <div
                           style={{
-                            fontSize: "28px",
+                            fontSize: "24px",
                             fontWeight: "700",
                             color: "#fff",
                             margin: "4px 0",
@@ -285,7 +276,6 @@ export default function DemoBoard() {
                       <div className="card-meta-row">
                         {c.due && <span>📅 {c.due}</span>}
                         {c.age && <span>Age: {c.age}</span>}
-                        {c.checkItems && <span>☑ {c.checkItems}</span>}
                       </div>
                     </div>
                   ))}
@@ -294,7 +284,7 @@ export default function DemoBoard() {
             );
           })}
 
-          {/* Interactive Floating Auth Popup - exactly positioned like screenshot */}
+          {/* Floating Auth Popup */}
           {showPopup && (
             <div className="trello-popup-wrapper">
               <div className="trello-popup-header">
@@ -310,18 +300,9 @@ export default function DemoBoard() {
                   <CloseIcon width={14} height={14} />
                 </button>
               </div>
-
-              {/* The interactive AuthPopup component! */}
               <AuthPopup t={mockT} />
             </div>
           )}
-        </div>
-      )}
-
-      {/* Rules Modal View */}
-      {activeView === "rules" && (
-        <div style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
-          <RulesModal t={mockT} />
         </div>
       )}
 

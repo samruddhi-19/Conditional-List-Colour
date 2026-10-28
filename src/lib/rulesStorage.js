@@ -1,65 +1,122 @@
-// Rules engine & storage for Conditional List Colors
+// Rules engine & storage for Conditional List Color Rule Studio
 
 export const STORAGE_KEY_RULES = "conditional_list_color_rules";
+export const STORAGE_KEY_THEME = "conditional_list_color_theme";
+
+export const COLORS = {
+  blue: "#1d4ed8",
+  red: "#ef4444",
+  orange: "#f97316",
+  yellow: "#facc15",
+  green: "#16a34a",
+  teal: "#0d9488",
+  purple: "#8b5cf6",
+  pink: "#ec4899",
+  slate: "#475569",
+};
 
 export const COLOR_PRESETS = [
-  { name: "Emerald Green", hex: "#10b981", bg: "rgba(16, 185, 129, 0.18)", border: "#059669" },
-  { name: "Ocean Blue", hex: "#0c66e4", bg: "rgba(12, 102, 228, 0.18)", border: "#0052cc" },
-  { name: "Coral Red", hex: "#ef4444", bg: "rgba(239, 68, 68, 0.18)", border: "#dc2626" },
-  { name: "Amber Gold", hex: "#f59e0b", bg: "rgba(245, 158, 11, 0.18)", border: "#d97706" },
-  { name: "Amethyst Purple", hex: "#8b5cf6", bg: "rgba(139, 92, 246, 0.18)", border: "#7c3aed" },
-  { name: "Teal Cyan", hex: "#06b6d4", bg: "rgba(6, 182, 212, 0.18)", border: "#0891b2" },
-  { name: "Rose Pink", hex: "#ec4899", bg: "rgba(236, 72, 153, 0.18)", border: "#db2777" },
-  { name: "Charcoal Dark", hex: "#4b5563", bg: "rgba(75, 85, 99, 0.22)", border: "#374151" },
+  { name: "Ocean Blue", key: "blue", hex: "#1d4ed8" },
+  { name: "Coral Red", key: "red", hex: "#ef4444" },
+  { name: "Amber Orange", key: "orange", hex: "#f97316" },
+  { name: "Sun Yellow", key: "yellow", hex: "#facc15" },
+  { name: "Emerald Green", key: "green", hex: "#16a34a" },
+  { name: "Teal Cyan", key: "teal", hex: "#0d9488" },
+  { name: "Amethyst Purple", key: "purple", hex: "#8b5cf6" },
+  { name: "Rose Pink", key: "pink", hex: "#ec4899" },
+  { name: "Slate Charcoal", key: "slate", hex: "#475569" },
+];
+
+export const PRIORITIES = ["Urgent", "High", "Medium", "Low"];
+
+export const BOARD_LIST_NAMES = [
+  "Sprint Backlog",
+  "In Progress",
+  "Review & QA",
+  "Done / Deployed",
+];
+
+// Sample board lists with realistic card tasks & priority badges for live preview
+export const PREVIEW_BOARD_LISTS = [
+  {
+    name: "Sprint Backlog",
+    cards: [
+      { id: "sb-1", title: "API Gateway rate limiting", priority: "High" },
+      { id: "sb-2", title: "Database indexing migration", priority: "Medium" },
+      { id: "sb-3", title: "Update copyright & docs", priority: "Low" },
+    ],
+  },
+  {
+    name: "In Progress",
+    cards: [
+      { id: "ip-1", title: "Critical payment auth failure", priority: "Urgent" },
+      { id: "ip-2", title: "Component theme switching", priority: "Medium" },
+    ],
+  },
+  {
+    name: "Review & QA",
+    cards: [
+      { id: "qa-1", title: "Dark mode CSS contrast audit", priority: "Medium" },
+      { id: "qa-2", title: "Keyboard navigation tests", priority: "Low" },
+    ],
+  },
+  {
+    name: "Done / Deployed",
+    cards: [
+      { id: "dn-1", title: "Vite 5 bundling setup", priority: "Low" },
+    ],
+  },
 ];
 
 export const DEFAULT_RULES = [
   {
-    id: "rule-1",
-    enabled: true,
-    name: "Completed / Done Lists",
-    conditionType: "title_contains",
-    conditionValue: "Done",
-    color: "#10b981",
-    applyTo: "both",
+    id: 1,
+    name: "Critical Blocker Alert",
+    on: true,
+    all: true,
+    lists: [],
+    logic: "AND",
+    conds: [{ p: "Urgent" }],
+    color: "red",
   },
   {
-    id: "rule-2",
-    enabled: true,
-    name: "Work in Progress",
-    conditionType: "title_contains",
-    conditionValue: "Progress",
-    color: "#0c66e4",
-    applyTo: "both",
+    id: 2,
+    name: "Active High-Priority Work",
+    on: true,
+    all: false,
+    lists: ["Sprint Backlog", "In Progress"],
+    logic: "AND",
+    conds: [{ p: "High" }],
+    color: "orange",
   },
   {
-    id: "rule-3",
-    enabled: true,
-    name: "Urgent & Blocked",
-    conditionType: "title_contains",
-    conditionValue: "Blocked",
-    color: "#ef4444",
-    applyTo: "both",
-  },
-  {
-    id: "rule-4",
-    enabled: true,
-    name: "High Card Overload (> 7 cards)",
-    conditionType: "card_count_gt",
-    conditionValue: "7",
-    color: "#f59e0b",
-    applyTo: "header",
-  },
-  {
-    id: "rule-5",
-    enabled: false,
-    name: "Lists with Overdue Cards",
-    conditionType: "has_overdue",
-    conditionValue: "",
-    color: "#ef4444",
-    applyTo: "both",
+    id: 3,
+    name: "Shipped & Deployed",
+    on: true,
+    all: false,
+    lists: ["Done / Deployed"],
+    logic: "AND",
+    conds: [{ p: "Low" }],
+    color: "green",
   },
 ];
+
+/**
+ * Creates a blank new rule with sensible defaults
+ */
+let uidCounter = 100;
+export function createNewRule(name = "New Conditional Rule") {
+  return {
+    id: ++uidCounter + "-" + Date.now(),
+    name,
+    on: true,
+    all: true,
+    lists: [],
+    logic: "AND",
+    conds: [{ p: "Urgent" }],
+    color: "blue",
+  };
+}
 
 /**
  * Loads rules from Trello board-scoped shared storage with localStorage fallback
@@ -79,7 +136,23 @@ export async function getRules(t) {
     } catch (e) {}
   }
 
-  return rules && Array.isArray(rules) && rules.length > 0 ? rules : DEFAULT_RULES;
+  if (rules && Array.isArray(rules) && rules.length > 0) {
+    // Normalize format in case rules were stored in legacy structure
+    return rules.map((r, idx) => ({
+      id: r.id || idx + 1,
+      name: r.name || `Rule #${idx + 1}`,
+      on: r.on !== undefined ? Boolean(r.on) : (r.enabled !== undefined ? Boolean(r.enabled) : true),
+      all: r.all !== undefined ? Boolean(r.all) : (!r.lists || r.lists.length === 0),
+      lists: Array.isArray(r.lists) ? r.lists : [],
+      logic: r.logic === "OR" ? "OR" : "AND",
+      conds: Array.isArray(r.conds) && r.conds.length > 0
+        ? r.conds
+        : [{ p: r.priority || "Urgent" }],
+      color: COLORS[r.color] ? r.color : (Object.keys(COLORS).find(k => COLORS[k] === r.color) || "blue"),
+    }));
+  }
+
+  return DEFAULT_RULES;
 }
 
 /**
@@ -98,62 +171,77 @@ export async function saveRules(t, rules) {
 }
 
 /**
- * Evaluates which rule matches a given list
- * @param {object} list - { id, name }
- * @param {Array} cards - cards in this list
- * @param {Array} rules - array of active rules
- * @returns {object|null} matching rule or null
+ * Checks if a single rule matches a list
+ * @param {object} rule
+ * @param {object} list - { name or n, cards or c }
+ * @returns {boolean}
  */
-export function evaluateListRule(list, cards = [], rules = []) {
-  if (!list || !Array.isArray(rules)) return null;
+export function evaluateRuleMatch(rule, list) {
+  const isEnabled = rule.on !== undefined ? rule.on : rule.enabled;
+  if (!isEnabled) return false;
 
-  for (const rule of rules) {
-    if (!rule.enabled) continue;
-
-    const listName = (list.name || "").toLowerCase();
-    const val = (rule.conditionValue || "").toLowerCase();
-    const count = cards.length;
-
-    switch (rule.conditionType) {
-      case "title_contains":
-        if (val && listName.includes(val)) return rule;
-        break;
-
-      case "title_equals":
-        if (val && listName.trim() === val.trim()) return rule;
-        break;
-
-      case "card_count_gt": {
-        const threshold = parseInt(rule.conditionValue, 10);
-        if (!isNaN(threshold) && count > threshold) return rule;
-        break;
-      }
-
-      case "card_count_lt": {
-        const threshold = parseInt(rule.conditionValue, 10);
-        if (!isNaN(threshold) && count < threshold) return rule;
-        break;
-      }
-
-      case "card_count_equals": {
-        const threshold = parseInt(rule.conditionValue, 10);
-        if (!isNaN(threshold) && count === threshold) return rule;
-        break;
-      }
-
-      case "has_overdue": {
-        const now = new Date().toISOString();
-        const hasOverdue = cards.some(
-          (c) => c.due && !c.dueComplete && c.due < now
-        );
-        if (hasOverdue) return rule;
-        break;
-      }
-
-      default:
-        break;
+  const listName = list.n || list.name || "";
+  if (!rule.all) {
+    if (!rule.lists || !rule.lists.includes(listName)) {
+      return false;
     }
   }
 
+  // Extract priorities in the list
+  let priorities = [];
+  if (Array.isArray(list.c)) {
+    priorities = list.c;
+  } else if (Array.isArray(list.cards)) {
+    priorities = list.cards.map((c) =>
+      typeof c === "string" ? c : (c.priority || c.tag || (c.overdue ? "Urgent" : "Low"))
+    );
+  }
+
+  const conds = rule.conds || [];
+  if (conds.length === 0) return true;
+
+  const testCondition = (c) => priorities.includes(c.p);
+
+  if (rule.logic === "OR") {
+    return conds.some(testCondition);
+  } else {
+    return conds.every(testCondition);
+  }
+}
+
+/**
+ * Evaluates rules from top to bottom. The first matching rule styles the list.
+ * @param {object} list
+ * @param {Array} rules
+ * @returns {object|null} the first matching rule, or null if none match
+ */
+export function getMatchingRule(list, rules = []) {
+  if (!list || !Array.isArray(rules)) return null;
+  for (const rule of rules) {
+    if (evaluateRuleMatch(rule, list)) {
+      return rule;
+    }
+  }
   return null;
+}
+
+/**
+ * Backward compatibility evaluator for board views
+ */
+export function evaluateListRule(list, cards = [], rules = []) {
+  if (!list || !Array.isArray(rules)) return null;
+  const listObj = {
+    name: list.name || list.n || "",
+    cards: cards || list.cards || [],
+  };
+  const match = getMatchingRule(listObj, rules);
+  if (!match) return null;
+
+  const hex = COLORS[match.color] || match.color || "#1d4ed8";
+  return {
+    ...match,
+    color: hex,
+    colorKey: match.color,
+    applyTo: "both",
+  };
 }

@@ -5,6 +5,8 @@ import {
   BROADCAST_CHANNEL_NAME,
   buildAuthorizeUrl,
   saveToken,
+  getToken,
+  clearToken,
 } from "../lib/auth.js";
 import {
   PrismListEngineGraphic,
@@ -30,6 +32,20 @@ export default function AuthPopup({ t }) {
   const [showDetails, setShowDetails] = useState(false);
   const popupRef = useRef(null);
 
+  // Check initial token status on mount (respects Trello "Remove personal data")
+  useEffect(() => {
+    async function checkInitialToken() {
+      const existingToken = await getToken(t);
+      if (existingToken) {
+        setStatus("success");
+      } else {
+        setStatus("idle");
+      }
+    }
+    checkInitialToken();
+  }, [t]);
+
+  // Listen for authorization messages from popup window
   useEffect(() => {
     async function handleToken(token) {
       if (!token) return;
@@ -163,6 +179,12 @@ export default function AuthPopup({ t }) {
     }
   }
 
+  async function handleDisconnectAndReauth() {
+    await clearToken(t);
+    setStatus("idle");
+    setErrorMessage("");
+  }
+
   // Success view with celebratory feedback
   if (status === "success") {
     return (
@@ -186,9 +208,18 @@ export default function AuthPopup({ t }) {
 
         <button
           type="button"
+          onClick={handleDisconnectAndReauth}
+          className="auth-toggle-link"
+          style={{ marginTop: "14px", color: "#f87171" }}
+        >
+          Re-authorize / Change Account
+        </button>
+
+        <button
+          type="button"
           onClick={handleClose}
           className="auth-toggle-link"
-          style={{ marginTop: "16px" }}
+          style={{ marginTop: "8px" }}
         >
           Close &amp; Return to Board
         </button>

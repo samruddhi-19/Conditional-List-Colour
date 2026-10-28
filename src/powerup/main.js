@@ -52,11 +52,11 @@ TrelloPowerUp.initialize({
 
           return t.modal({
             url: "./rules.html",
-            accentColor: "#0c66e4",
+            accentColor: "#1d4ed8",
             fullscreen: false,
-            height: 520,
-            width: 700,
-            title: "Conditional List Colors - Rules & Themes",
+            height: 680,
+            width: 1020,
+            title: "Conditional List Color Rule Studio",
           });
         },
       },
@@ -80,11 +80,11 @@ TrelloPowerUp.initialize({
 
           return t.modal({
             url: "./rules.html",
-            accentColor: "#0c66e4",
+            accentColor: "#1d4ed8",
             fullscreen: false,
-            height: 520,
-            width: 700,
-            title: "Conditional List Colors - Rules & Themes",
+            height: 680,
+            width: 1020,
+            title: "Conditional List Color Rule Studio",
           });
         },
       },

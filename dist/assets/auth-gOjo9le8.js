@@ -1,1 +1,0 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{c as e,j as o,R as t}from"./icons-BmdT91Yq.js";import{A as r}from"./AuthPopup-BLYaVUNR.js";import"./auth-JUQtARCU.js";const i=typeof window<"u"&&window.TrelloPowerUp?window.TrelloPowerUp.iframe():null;e.createRoot(document.getElementById("root")).render(o.jsx(t.StrictMode,{children:o.jsx(r,{t:i})}));
