@@ -52,7 +52,7 @@ TrelloPowerUp.initialize({
 
           return t.modal({
             url: "./rules.html",
-            accentColor: "#1d4ed8",
+            accentColor: "#22272b",
             fullscreen: false,
             height: 680,
             width: 1020,
@@ -80,7 +80,7 @@ TrelloPowerUp.initialize({
 
           return t.modal({
             url: "./rules.html",
-            accentColor: "#1d4ed8",
+            accentColor: "#22272b",
             fullscreen: false,
             height: 680,
             width: 1020,

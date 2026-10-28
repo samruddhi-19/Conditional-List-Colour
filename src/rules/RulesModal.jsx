@@ -229,15 +229,17 @@ export default function RulesModal({ t, onClose }) {
               <span>{theme === "dark" ? "Light" : "Dark"}</span>
             </button>
 
-            <button
-              type="button"
-              className="studio-close-btn"
-              onClick={handleClose}
-              aria-label="Close"
-              title="Close Rule Studio"
-            >
-              ✕
-            </button>
+            {typeof onClose === "function" && (
+              <button
+                type="button"
+                className="studio-close-btn"
+                onClick={handleClose}
+                aria-label="Close"
+                title="Close Rule Studio"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </header>
 
@@ -568,27 +570,70 @@ export default function RulesModal({ t, onClose }) {
                   </div>
                 </div>
 
-                {/* 4. List Styling & Color Swatches */}
-                <div>
-                  <h3 className="section-title">List Styling &amp; Color</h3>
-                  <div className="color-swatches-grid">
-                    {Object.entries(COLORS).map(([colorKey, colorHex]) => {
-                      const isSelected = selectedRule.color === colorKey;
+                {/* 4. List Styling & Color (Atlassian Tile Selector) */}
+                <div className="list-color-section">
+                  <div className="color-section-header">
+                    <h3 className="section-title" style={{ margin: 0 }}>List Styling &amp; Color</h3>
+                    <div className="color-name-badge">
+                      <span
+                        className="color-dot-indicator"
+                        style={{ backgroundColor: COLORS[selectedRule.color] || selectedRule.color }}
+                      />
+                      <span>
+                        {COLOR_PRESETS.find((p) => p.key === selectedRule.color)?.name ||
+                          selectedRule.color}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="color-tiles-grid">
+                    {COLOR_PRESETS.map((preset) => {
+                      const isSelected = selectedRule.color === preset.key;
 
                       return (
-                        <div
-                          key={colorKey}
-                          className={`color-swatch-circle ${
-                            isSelected ? "is-selected" : ""
-                          }`}
-                          style={{ backgroundColor: colorHex }}
-                          onClick={() =>
-                            updateSelectedRule({ color: colorKey })
-                          }
-                          title={`${colorKey.charAt(0).toUpperCase() + colorKey.slice(1)} (${colorHex})`}
-                        />
+                        <button
+                          type="button"
+                          key={preset.key}
+                          className={`color-tile-btn ${isSelected ? "is-selected" : ""}`}
+                          style={{ backgroundColor: preset.hex }}
+                          onClick={() => updateSelectedRule({ color: preset.key })}
+                          title={preset.name}
+                          aria-label={`Select ${preset.name}`}
+                        >
+                          {isSelected && (
+                            <svg
+                              className="color-tile-checkmark"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="#ffffff"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </button>
                       );
                     })}
+                  </div>
+
+                  <div
+                    className="color-style-preview-strip"
+                    style={{ borderLeftColor: COLORS[selectedRule.color] || selectedRule.color }}
+                  >
+                    <span className="style-preview-label">Applied to matching lists:</span>
+                    <span
+                      className="style-preview-chip"
+                      style={{
+                        backgroundColor: `${COLORS[selectedRule.color] || selectedRule.color}22`,
+                        color: COLORS[selectedRule.color] || selectedRule.color,
+                      }}
+                    >
+                      Top Accent Bar + Soft Tint
+                    </span>
                   </div>
                 </div>
               </>
