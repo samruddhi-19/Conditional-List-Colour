@@ -4,27 +4,27 @@ export const STORAGE_KEY_RULES = "conditional_list_color_rules";
 export const STORAGE_KEY_THEME = "conditional_list_color_theme";
 
 export const COLORS = {
-  blue: "#1d4ed8",
-  red: "#ef4444",
-  orange: "#f97316",
-  yellow: "#facc15",
-  green: "#16a34a",
-  teal: "#0d9488",
-  purple: "#8b5cf6",
-  pink: "#ec4899",
-  slate: "#475569",
+  blue: "#0c66e4",
+  red: "#e34935",
+  orange: "#d97008",
+  yellow: "#e2b203",
+  green: "#1f845a",
+  teal: "#227d9b",
+  purple: "#8270db",
+  pink: "#e774bb",
+  slate: "#626f86",
 };
 
 export const COLOR_PRESETS = [
-  { name: "Ocean Blue", key: "blue", hex: "#1d4ed8" },
-  { name: "Coral Red", key: "red", hex: "#ef4444" },
-  { name: "Amber Orange", key: "orange", hex: "#f97316" },
-  { name: "Sun Yellow", key: "yellow", hex: "#facc15" },
-  { name: "Emerald Green", key: "green", hex: "#16a34a" },
-  { name: "Teal Cyan", key: "teal", hex: "#0d9488" },
-  { name: "Amethyst Purple", key: "purple", hex: "#8b5cf6" },
-  { name: "Rose Pink", key: "pink", hex: "#ec4899" },
-  { name: "Slate Charcoal", key: "slate", hex: "#475569" },
+  { name: "Ocean Blue", key: "blue", hex: "#0c66e4" },
+  { name: "Coral Red", key: "red", hex: "#e34935" },
+  { name: "Amber Orange", key: "orange", hex: "#d97008" },
+  { name: "Sun Gold", key: "yellow", hex: "#e2b203" },
+  { name: "Emerald Green", key: "green", hex: "#1f845a" },
+  { name: "Teal Cyan", key: "teal", hex: "#227d9b" },
+  { name: "Amethyst Purple", key: "purple", hex: "#8270db" },
+  { name: "Rose Pink", key: "pink", hex: "#e774bb" },
+  { name: "Slate Charcoal", key: "slate", hex: "#626f86" },
 ];
 
 export const PRIORITIES = ["Urgent", "High", "Medium", "Low"];

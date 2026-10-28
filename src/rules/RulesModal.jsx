@@ -19,7 +19,7 @@ export default function RulesModal({ t, onClose }) {
   const [theme, setTheme] = useState("dark");
   const [loading, setLoading] = useState(true);
 
-  // Initialize theme from localStorage or system preference
+  // Initialize theme
   useEffect(() => {
     const savedTheme = localStorage.getItem(STORAGE_KEY_THEME);
     if (savedTheme) {
@@ -65,7 +65,7 @@ export default function RulesModal({ t, onClose }) {
 
   // Add rule
   const handleAddRule = async () => {
-    const newRule = createNewRule(`New Conditional Rule ${rules.length + 1}`);
+    const newRule = createNewRule(`Rule #${rules.length + 1}`);
     const updated = [...rules, newRule];
     await persistRules(updated);
     setSelectedId(newRule.id);
@@ -138,7 +138,6 @@ export default function RulesModal({ t, onClose }) {
       nextLists.push(listName);
     }
 
-    // If no specific lists are selected, fallback to ALL
     if (nextLists.length === 0) {
       updateSelectedRule({ all: true, lists: [] });
     } else {
@@ -187,12 +186,12 @@ export default function RulesModal({ t, onClose }) {
   return (
     <div className="studio-backdrop" data-theme={theme}>
       <div className="studio-modal">
-        {/* Header */}
+        {/* Header Bar */}
         <header className="studio-header">
           <div className="studio-logo-icon">
             <svg
-              width="20"
-              height="20"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -226,17 +225,8 @@ export default function RulesModal({ t, onClose }) {
               onClick={toggleTheme}
               title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
             >
-              {theme === "dark" ? (
-                <>
-                  <span>☀️</span>
-                  <span>Light</span>
-                </>
-              ) : (
-                <>
-                  <span>🌙</span>
-                  <span>Dark</span>
-                </>
-              )}
+              <span>{theme === "dark" ? "☀️" : "🌙"}</span>
+              <span>{theme === "dark" ? "Light" : "Dark"}</span>
             </button>
 
             <button
@@ -251,9 +241,9 @@ export default function RulesModal({ t, onClose }) {
           </div>
         </header>
 
-        {/* Studio Body: Two Columns */}
+        {/* Two-Sided Body Grid */}
         <div className="studio-body">
-          {/* Left Sidebar */}
+          {/* Left Sidebar (Evaluation Order) */}
           <aside className="studio-sidebar">
             <div className="sidebar-header">
               <span className="evaluation-order-label">
@@ -278,7 +268,7 @@ export default function RulesModal({ t, onClose }) {
                   const isSelected = rule.id === selectedId;
                   const isFirst = idx === 0;
                   const isLast = idx === rules.length - 1;
-                  const colorHex = COLORS[rule.color] || rule.color || "#1d4ed8";
+                  const colorHex = COLORS[rule.color] || rule.color || "#0c66e4";
                   const condCount = rule.conds ? rule.conds.length : 1;
                   const listSummary = rule.all
                     ? "All lists"
@@ -305,23 +295,45 @@ export default function RulesModal({ t, onClose }) {
                       <div className="reorder-arrows-col">
                         <button
                           type="button"
-                          className="arrow-btn"
+                          className="arrow-icon-btn"
                           disabled={isFirst}
                           onClick={(e) => handleMoveRule(idx, -1, e)}
-                          title="Move rule higher in evaluation order"
+                          title="Move rule higher"
                           aria-label="Move Up"
                         >
-                          ▲
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="18 15 12 9 6 15" />
+                          </svg>
                         </button>
                         <button
                           type="button"
-                          className="arrow-btn"
+                          className="arrow-icon-btn"
                           disabled={isLast}
                           onClick={(e) => handleMoveRule(idx, 1, e)}
-                          title="Move rule lower in evaluation order"
+                          title="Move rule lower"
                           aria-label="Move Down"
                         >
-                          ▼
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="6 9 12 15 18 9" />
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -331,27 +343,27 @@ export default function RulesModal({ t, onClose }) {
             </div>
           </aside>
 
-          {/* Right Panel (Selected Rule Editor) */}
+          {/* Right Main Panel (Selected Rule Editor) */}
           <main className="studio-main-panel">
             {!selectedRule ? (
               <div className="empty-editor-container">
                 <div className="empty-editor-icon">📋</div>
-                <h3 style={{ margin: 0 }}>No Rule Selected</h3>
-                <p style={{ margin: 0, fontSize: "13px" }}>
-                  Select an existing rule from the evaluation list or create a new one.
+                <h3 style={{ margin: 0, fontSize: "14px", fontWeight: 600 }}>No Rule Selected</h3>
+                <p style={{ margin: 0, fontSize: "12px", color: "var(--muted)" }}>
+                  Select a rule from the evaluation order on the left or create a new rule.
                 </p>
                 <button
                   type="button"
                   className="btn-add-rule"
                   onClick={handleAddRule}
-                  style={{ marginTop: "8px" }}
+                  style={{ marginTop: "6px" }}
                 >
                   + Add Rule
                 </button>
               </div>
             ) : (
               <>
-                {/* 1. Rule Name & Top Actions */}
+                {/* 1. Rule Name & Action Controls */}
                 <div className="editor-top-bar">
                   <div className="rule-name-field-group">
                     <label className="field-label-cap" htmlFor="rule-name-input">
@@ -365,21 +377,21 @@ export default function RulesModal({ t, onClose }) {
                       onChange={(e) =>
                         updateSelectedRule({ name: e.target.value })
                       }
-                      placeholder="e.g. Urgent Priority Blocker Alert"
+                      placeholder="e.g. Critical Blocker Alert"
                     />
                   </div>
 
-                  <label className="rule-enabled-toggle-btn">
-                    <input
-                      type="checkbox"
-                      className="rule-enabled-checkbox"
-                      checked={Boolean(selectedRule.on)}
-                      onChange={(e) =>
-                        updateSelectedRule({ on: e.target.checked })
-                      }
-                    />
-                    <span>Rule Enabled</span>
-                  </label>
+                  {/* Atlassian Toggle Switch for Rule Enabled */}
+                  <div
+                    className="toggle-switch-wrapper"
+                    onClick={() => updateSelectedRule({ on: !selectedRule.on })}
+                    title={selectedRule.on ? "Rule is active" : "Rule is disabled"}
+                  >
+                    <span className="toggle-switch-label">Rule Enabled</span>
+                    <div className={`toggle-track ${selectedRule.on ? "is-on" : ""}`}>
+                      <div className="toggle-thumb" />
+                    </div>
+                  </div>
 
                   <button
                     type="button"
@@ -388,8 +400,8 @@ export default function RulesModal({ t, onClose }) {
                     onClick={() => handleDuplicateRule(selectedRule)}
                   >
                     <svg
-                      width="16"
-                      height="16"
+                      width="15"
+                      height="15"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -409,8 +421,8 @@ export default function RulesModal({ t, onClose }) {
                     onClick={() => handleDeleteRule(selectedRule)}
                   >
                     <svg
-                      width="16"
-                      height="16"
+                      width="15"
+                      height="15"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -424,61 +436,36 @@ export default function RulesModal({ t, onClose }) {
                   </button>
                 </div>
 
-                {/* 2 & 4. Target Lists Chips + Color Swatches Side by Side */}
-                <div className="editor-middle-row">
-                  <div className="editor-subcol-targets">
-                    <h3 className="section-title">Target Lists</h3>
-                    <div className="target-lists-chips">
-                      <button
-                        type="button"
-                        className={`target-chip ${selectedRule.all ? "is-active" : ""}`}
-                        onClick={() => handleTargetListToggle("ALL")}
-                      >
-                        All Lists on Board
-                      </button>
-                      {BOARD_LIST_NAMES.map((name) => {
-                        const isListSelected =
-                          !selectedRule.all &&
-                          Array.isArray(selectedRule.lists) &&
-                          selectedRule.lists.includes(name);
+                {/* 2. Target Lists Section */}
+                <div>
+                  <h3 className="section-title">Target Lists</h3>
+                  <div className="target-lists-chips">
+                    <button
+                      type="button"
+                      className={`target-chip ${selectedRule.all ? "is-active" : ""}`}
+                      onClick={() => handleTargetListToggle("ALL")}
+                    >
+                      All Lists on Board
+                    </button>
+                    {BOARD_LIST_NAMES.map((name) => {
+                      const isListSelected =
+                        !selectedRule.all &&
+                        Array.isArray(selectedRule.lists) &&
+                        selectedRule.lists.includes(name);
 
-                        return (
-                          <button
-                            key={name}
-                            type="button"
-                            className={`target-chip ${
-                              isListSelected ? "is-active" : ""
-                            }`}
-                            onClick={() => handleTargetListToggle(name)}
-                          >
-                            {name}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="editor-subcol-colors">
-                    <h3 className="section-title">🎨 List Styling &amp; Color</h3>
-                    <div className="color-swatches-grid">
-                      {Object.entries(COLORS).map(([colorKey, colorHex]) => {
-                        const isSelected = selectedRule.color === colorKey;
-
-                        return (
-                          <div
-                            key={colorKey}
-                            className={`color-swatch-circle ${
-                              isSelected ? "is-selected" : ""
-                            }`}
-                            style={{ backgroundColor: colorHex }}
-                            onClick={() =>
-                              updateSelectedRule({ color: colorKey })
-                            }
-                            title={`${colorKey.charAt(0).toUpperCase() + colorKey.slice(1)} (${colorHex})`}
-                          />
-                        );
-                      })}
-                    </div>
+                      return (
+                        <button
+                          key={name}
+                          type="button"
+                          className={`target-chip ${
+                            isListSelected ? "is-active" : ""
+                          }`}
+                          onClick={() => handleTargetListToggle(name)}
+                        >
+                          {name}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -518,7 +505,8 @@ export default function RulesModal({ t, onClose }) {
                           : "Add another condition"
                       }
                     >
-                      + Add Condition
+                      <span>+</span>
+                      <span>Add Condition</span>
                       {selectedRule.conds && selectedRule.conds.length >= 6 && " (Max 6)"}
                     </button>
                   </div>
@@ -550,12 +538,10 @@ export default function RulesModal({ t, onClose }) {
 
                           <div className="condition-row-controls">
                             <span className="condition-connector-text">Type:</span>
-                            <select
-                              disabled
-                              title="Condition trigger type hardcoded to Priority"
-                            >
-                              <option value="priority">⚡ Priority</option>
-                            </select>
+                            <div className="custom-type-badge">
+                              <span>⚡</span>
+                              <span>Priority</span>
+                            </div>
 
                             <span className="condition-connector-text">→</span>
                             <span className="condition-connector-text">
@@ -563,6 +549,7 @@ export default function RulesModal({ t, onClose }) {
                             </span>
 
                             <select
+                              className="custom-priority-select"
                               value={cond.p}
                               onChange={(e) =>
                                 handleConditionPriorityChange(idx, e.target.value)
@@ -581,6 +568,30 @@ export default function RulesModal({ t, onClose }) {
                   </div>
                 </div>
 
+                {/* 4. List Styling & Color Swatches */}
+                <div>
+                  <h3 className="section-title">List Styling &amp; Color</h3>
+                  <div className="color-swatches-grid">
+                    {Object.entries(COLORS).map(([colorKey, colorHex]) => {
+                      const isSelected = selectedRule.color === colorKey;
+
+                      return (
+                        <div
+                          key={colorKey}
+                          className={`color-swatch-circle ${
+                            isSelected ? "is-selected" : ""
+                          }`}
+                          style={{ backgroundColor: colorHex }}
+                          onClick={() =>
+                            updateSelectedRule({ color: colorKey })
+                          }
+                          title={`${colorKey.charAt(0).toUpperCase() + colorKey.slice(1)} (${colorHex})`}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {/* 5. Live Preview Mini Board */}
                 <div className="live-preview-section">
                   <div className="live-preview-header">
@@ -588,54 +599,62 @@ export default function RulesModal({ t, onClose }) {
                       Live Preview
                     </h3>
                     <span className="preview-subtext">
-                      Top-to-bottom evaluation across sample board lists
+                      Real-time evaluation: first matching rule styles the list
                     </span>
                   </div>
 
                   <div className="live-preview-board">
                     {PREVIEW_BOARD_LISTS.map((list) => {
-                      // Find first matching enabled rule
                       const matchedRule = rules.find((r) =>
                         evaluateRuleMatch(r, list)
                       );
-                      const matchedColorHex = matchedRule
+                      const matchedColor = matchedRule
                         ? COLORS[matchedRule.color] || matchedRule.color
                         : null;
 
-                      const listColumnStyle = matchedColorHex
+                      // Authentic Trello list styling: clean accent header border + soft tint
+                      const listStyle = matchedColor
                         ? {
-                            backgroundColor: matchedColorHex,
-                            borderColor: matchedColorHex,
-                            color: "#ffffff",
+                            borderTop: `4px solid ${matchedColor}`,
+                            backgroundColor: `${matchedColor}14`,
+                            borderColor: `${matchedColor}40`,
                           }
-                        : {};
+                        : {
+                            borderTop: "4px solid transparent",
+                          };
 
                       return (
                         <div
                           key={list.name}
                           className="preview-list-column"
-                          style={listColumnStyle}
+                          style={listStyle}
                         >
                           <div className="preview-list-header">
-                            <h4
-                              className="preview-list-title"
-                              style={{
-                                color: matchedColorHex ? "#ffffff" : "inherit",
-                              }}
-                            >
-                              {list.name}
-                            </h4>
+                            <div className="preview-list-title-row">
+                              <h4 className="preview-list-title">{list.name}</h4>
+                              {matchedColor && (
+                                <span
+                                  style={{
+                                    width: 8,
+                                    height: 8,
+                                    borderRadius: "50%",
+                                    backgroundColor: matchedColor,
+                                    flexShrink: 0,
+                                  }}
+                                  title={`Matched rule: ${matchedRule.name}`}
+                                />
+                              )}
+                            </div>
                             <span
                               className="preview-rule-badge"
                               style={{
-                                color: matchedColorHex
-                                  ? "rgba(255, 255, 255, 0.9)"
-                                  : "var(--muted)",
+                                color: matchedColor || "var(--muted)",
+                                backgroundColor: matchedColor
+                                  ? `${matchedColor}22`
+                                  : "var(--hover)",
                               }}
                             >
-                              {matchedRule
-                                ? `● ${matchedRule.name}`
-                                : "○ No matching rule"}
+                              {matchedRule ? matchedRule.name : "No rule"}
                             </span>
                           </div>
 
