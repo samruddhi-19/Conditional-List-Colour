@@ -388,9 +388,11 @@
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   overflow-y: auto;
+  overflow-x: hidden;
   height: 100%;
+  scrollbar-gutter: stable;
 }
 
 /* Top Action Bar */
@@ -753,132 +755,59 @@
   transform: scale(1.15);
 }
 
-/* Live Preview Mini Board: Authentic Trello Aesthetic */
-.live-preview-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
+/* Styled Scrollbars inside Power-Up */
+:root {
+  --scrollbar-track: rgba(9, 30, 66, 0.04);
+  --scrollbar-thumb: rgba(9, 30, 66, 0.28);
+  --scrollbar-thumb-hover: rgba(9, 30, 66, 0.48);
 }
 
-.live-preview-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+:root[data-theme="dark"] {
+  --scrollbar-track: rgba(255, 255, 255, 0.05);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.28);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.48);
 }
 
-.preview-subtext {
-  font-size: 11px;
-  color: var(--muted);
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --scrollbar-track: rgba(255, 255, 255, 0.05);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.28);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.48);
+  }
 }
 
-.live-preview-board {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  overflow-x: auto;
+.studio-main-panel,
+.sidebar-rules-list,
+.studio-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-.preview-list-column {
-  border-radius: 6px;
-  background-color: var(--side);
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
+.studio-main-panel::-webkit-scrollbar,
+.sidebar-rules-list::-webkit-scrollbar,
+.studio-body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.preview-list-header {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  transition: background 0.2s ease;
-}
-
-.preview-list-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
-
-.preview-list-title {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.preview-rule-badge {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 5px;
-  border-radius: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: 0.02em;
-}
-
-.preview-cards-container {
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.preview-card-item {
-  background-color: var(--card-surface);
-  color: var(--card-text);
+.studio-main-panel::-webkit-scrollbar-track,
+.sidebar-rules-list::-webkit-scrollbar-track,
+.studio-body::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
   border-radius: 4px;
-  padding: 6px 8px;
-  font-size: 11px;
-  font-weight: 500;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--border-subtle);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
-.preview-card-title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
+.studio-main-panel::-webkit-scrollbar-thumb,
+.sidebar-rules-list::-webkit-scrollbar-thumb,
+.studio-body::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 4px;
+  border: 1.5px solid transparent;
+  background-clip: content-box;
 }
 
-/* Priority Pills: Clean Atlassian Badge Colors */
-.priority-pill {
-  font-size: 9px;
-  font-weight: 700;
-  border-radius: 3px;
-  padding: 1px 5px;
-  color: #ffffff;
-  flex-shrink: 0;
-  letter-spacing: 0.03em;
-}
-
-.priority-pill.Urgent {
-  background-color: #e34935;
-}
-
-.priority-pill.High {
-  background-color: #d97008;
-}
-
-.priority-pill.Medium {
-  background-color: #e2b203;
-  color: #172b4d;
-}
-
-.priority-pill.Low {
-  background-color: #1f845a;
+.studio-main-panel::-webkit-scrollbar-thumb:hover,
+.sidebar-rules-list::-webkit-scrollbar-thumb:hover,
+.studio-body::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
 }
