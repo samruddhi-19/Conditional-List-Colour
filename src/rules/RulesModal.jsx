@@ -424,36 +424,61 @@ export default function RulesModal({ t, onClose }) {
                   </button>
                 </div>
 
-                {/* 2. Target Lists Chips */}
-                <div>
-                  <h3 className="section-title">Target Lists</h3>
-                  <div className="target-lists-chips">
-                    <button
-                      type="button"
-                      className={`target-chip ${selectedRule.all ? "is-active" : ""}`}
-                      onClick={() => handleTargetListToggle("ALL")}
-                    >
-                      All Lists on Board
-                    </button>
-                    {BOARD_LIST_NAMES.map((name) => {
-                      const isListSelected =
-                        !selectedRule.all &&
-                        Array.isArray(selectedRule.lists) &&
-                        selectedRule.lists.includes(name);
+                {/* 2 & 4. Target Lists Chips + Color Swatches Side by Side */}
+                <div className="editor-middle-row">
+                  <div className="editor-subcol-targets">
+                    <h3 className="section-title">Target Lists</h3>
+                    <div className="target-lists-chips">
+                      <button
+                        type="button"
+                        className={`target-chip ${selectedRule.all ? "is-active" : ""}`}
+                        onClick={() => handleTargetListToggle("ALL")}
+                      >
+                        All Lists on Board
+                      </button>
+                      {BOARD_LIST_NAMES.map((name) => {
+                        const isListSelected =
+                          !selectedRule.all &&
+                          Array.isArray(selectedRule.lists) &&
+                          selectedRule.lists.includes(name);
 
-                      return (
-                        <button
-                          key={name}
-                          type="button"
-                          className={`target-chip ${
-                            isListSelected ? "is-active" : ""
-                          }`}
-                          onClick={() => handleTargetListToggle(name)}
-                        >
-                          {name}
-                        </button>
-                      );
-                    })}
+                        return (
+                          <button
+                            key={name}
+                            type="button"
+                            className={`target-chip ${
+                              isListSelected ? "is-active" : ""
+                            }`}
+                            onClick={() => handleTargetListToggle(name)}
+                          >
+                            {name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="editor-subcol-colors">
+                    <h3 className="section-title">🎨 List Styling &amp; Color</h3>
+                    <div className="color-swatches-grid">
+                      {Object.entries(COLORS).map(([colorKey, colorHex]) => {
+                        const isSelected = selectedRule.color === colorKey;
+
+                        return (
+                          <div
+                            key={colorKey}
+                            className={`color-swatch-circle ${
+                              isSelected ? "is-selected" : ""
+                            }`}
+                            style={{ backgroundColor: colorHex }}
+                            onClick={() =>
+                              updateSelectedRule({ color: colorKey })
+                            }
+                            title={`${colorKey.charAt(0).toUpperCase() + colorKey.slice(1)} (${colorHex})`}
+                          />
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 
@@ -551,30 +576,6 @@ export default function RulesModal({ t, onClose }) {
                             </select>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 4. List Styling & Color Swatches */}
-                <div>
-                  <h3 className="section-title">🎨 List Styling &amp; Color</h3>
-                  <div className="color-swatches-grid">
-                    {Object.entries(COLORS).map(([colorKey, colorHex]) => {
-                      const isSelected = selectedRule.color === colorKey;
-
-                      return (
-                        <div
-                          key={colorKey}
-                          className={`color-swatch-circle ${
-                            isSelected ? "is-selected" : ""
-                          }`}
-                          style={{ backgroundColor: colorHex }}
-                          onClick={() =>
-                            updateSelectedRule({ color: colorKey })
-                          }
-                          title={`${colorKey.charAt(0).toUpperCase() + colorKey.slice(1)} (${colorHex})`}
-                        />
                       );
                     })}
                   </div>
