@@ -2,10 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import RulesModal from "./RulesModal.jsx";
 
-const t =
-  typeof window !== "undefined" && window.TrelloPowerUp
-    ? window.TrelloPowerUp.iframe()
-    : null;
+let t = null;
+try {
+  if (typeof window !== "undefined" && window.TrelloPowerUp && typeof window.TrelloPowerUp.iframe === "function") {
+    t = window.TrelloPowerUp.iframe();
+  }
+} catch (e) {
+  t = null;
+}
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

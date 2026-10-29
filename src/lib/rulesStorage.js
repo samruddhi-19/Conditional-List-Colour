@@ -163,6 +163,19 @@ export async function saveRules(t, rules) {
     localStorage.setItem(STORAGE_KEY_RULES, JSON.stringify(rules));
   } catch (e) {}
 
+  if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.sync) {
+    try {
+      chrome.storage.sync.set({ [STORAGE_KEY_RULES]: rules });
+    } catch (e) {}
+  }
+
+  // Notify parent window (e.g., Trello extension content script)
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "CLC_RULES_UPDATED", rules }, "*");
+    }
+  } catch (e) {}
+
   if (t && typeof t.set === "function") {
     try {
       await t.set("board", "shared", STORAGE_KEY_RULES, rules);

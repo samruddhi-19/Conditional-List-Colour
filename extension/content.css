@@ -1,0 +1,130 @@
+/* Injected styles for Trello Board */
+
+/* List Container Accent Transition */
+[data-clc-colored="true"] {
+  transition: background-color 0.25s ease, border-color 0.25s ease, border-top-color 0.25s ease !important;
+}
+
+/* Injected Board Header Button */
+.clc-header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background-color 0.15s ease, transform 0.1s;
+  user-select: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  z-index: 10;
+}
+
+.clc-header-btn:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.clc-header-btn:active {
+  transform: scale(0.97);
+}
+
+.clc-header-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Modal Overlay on Trello */
+.clc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: clc-fade-in 0.18s ease-out;
+}
+
+@keyframes clc-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.clc-modal-frame {
+  width: 1020px;
+  max-width: 95vw;
+  height: 680px;
+  max-height: 92vh;
+  background-color: #161b22;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  animation: clc-pop-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes clc-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.clc-modal-header {
+  height: 44px;
+  background-color: #101418;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  color: #e6edf3;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.clc-modal-close-btn {
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  font-size: 16px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.clc-modal-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.clc-modal-iframe {
+  flex: 1;
+  width: 100%;
+  height: calc(100% - 44px);
+  border: none;
+  background-color: #161b22;
+}
+
