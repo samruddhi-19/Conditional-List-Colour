@@ -5,11 +5,11 @@
   const STORAGE_KEY = "conditional_list_color_rules";
 
   const COLORS = {
-    blue: "#0c66e4",
     red: "#e34935",
     orange: "#d97008",
     yellow: "#e2b203",
     green: "#1f845a",
+    blue: "#0c66e4",
     teal: "#227d9b",
     purple: "#8270db",
     pink: "#e774bb",
@@ -32,7 +32,7 @@
       name: "Active High-Priority Work",
       on: true,
       all: false,
-      lists: ["Sprint Backlog", "In Progress"],
+      lists: [],
       logic: "AND",
       conds: [{ p: "High" }],
       color: "orange",
@@ -42,7 +42,7 @@
       name: "Shipped & Deployed",
       on: true,
       all: false,
-      lists: ["Done / Deployed"],
+      lists: [],
       logic: "AND",
       conds: [{ p: "Low" }],
       color: "green",
@@ -51,7 +51,7 @@
 
   let currentRules = DEFAULT_RULES;
 
-  // Load rules from chrome storage or localStorage
+  // Load rules from chrome.storage or localStorage
   function loadRules(callback) {
     if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.sync) {
       chrome.storage.sync.get([STORAGE_KEY], (res) => {
@@ -76,9 +76,9 @@
     }
   }
 
-  // Listen for storage changes
+  // Listen for storage changes from popup or studio
   if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.onChanged) {
-    chrome.storage.onChanged.addListener((changes, area) => {
+    chrome.storage.onChanged.addListener((changes) => {
       if (changes[STORAGE_KEY]) {
         currentRules = changes[STORAGE_KEY].newValue || DEFAULT_RULES;
         applyRulesToBoard();
@@ -86,8 +86,29 @@
     });
   }
 
+  // Get live board list names from Trello DOM
+  function getLiveBoardListNames() {
+    const names = [];
+    const nameEls = document.querySelectorAll(
+      '[data-testid="list-name"], [data-testid="list-name-textarea"], .list-header-name, .list-header-target, h2'
+    );
+    nameEls.forEach((el) => {
+      const val = (el.value || el.textContent || "").trim();
+      if (val && !names.includes(val) && !names.includes(val.toLowerCase())) {
+        names.push(val);
+      }
+    });
+    return names;
+  }
+
   // Listen for window message from rules iframe
   window.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "CLC_GET_BOARD_LISTS") {
+      const lists = getLiveBoardListNames();
+      if (event.source) {
+        event.source.postMessage({ type: "CLC_BOARD_LISTS_RESPONSE", lists }, "*");
+      }
+    }
     if (event.data && event.data.type === "CLC_RULES_UPDATED") {
       if (Array.isArray(event.data.rules)) {
         currentRules = event.data.rules;
@@ -99,43 +120,64 @@
   // Extract priorities present in a single card
   function getCardPriorities(cardEl) {
     const priorities = [];
-    const textToSearch = [];
+    const textPieces = [];
 
     // 1. Labels
     const labels = cardEl.querySelectorAll(
-      '[data-testid="card-label"], .card-label, .js-card-label, [data-testid="compact-card-label"]'
+      '[data-testid="card-label"], .card-label, .js-card-label, [data-testid="compact-card-label"], span[data-color]'
     );
-    labels.forEach((l) => textToSearch.push(l.textContent || ""));
+    labels.forEach((l) => textPieces.push(l.textContent || ""));
 
     // 2. Badges
     const badges = cardEl.querySelectorAll(
       '[data-testid="badge"], .badge, .badge-text, [data-testid="trello-card-badges"] span'
     );
-    badges.forEach((b) => textToSearch.push(b.textContent || ""));
+    badges.forEach((b) => textPieces.push(b.textContent || ""));
 
     // 3. Card Title / Name
     const nameEl = cardEl.querySelector(
       '[data-testid="card-name"], .list-card-title, .js-card-name'
     );
-    if (nameEl) textToSearch.push(nameEl.textContent || "");
+    if (nameEl) textPieces.push(nameEl.textContent || "");
 
-    const fullText = textToSearch.join(" ").toLowerCase();
+    const fullText = textPieces.join(" ").toLowerCase();
 
-    if (fullText.includes("urgent") || fullText.includes("blocker") || fullText.includes("critical")) {
+    // Check priorities
+    if (
+      fullText.includes("urgent") ||
+      fullText.includes("blocker") ||
+      fullText.includes("critical") ||
+      fullText.includes("p0")
+    ) {
       priorities.push("Urgent");
     }
-    if (fullText.includes("high") || fullText.includes("p1")) {
+    if (
+      fullText.includes("high") ||
+      fullText.includes("p1") ||
+      fullText.includes("important")
+    ) {
       priorities.push("High");
     }
-    if (fullText.includes("medium") || fullText.includes("med") || fullText.includes("p2")) {
+    if (
+      fullText.includes("medium") ||
+      fullText.includes("med") ||
+      fullText.includes("p2") ||
+      fullText.includes("normal")
+    ) {
       priorities.push("Medium");
     }
-    if (fullText.includes("low") || fullText.includes("p3")) {
+    if (
+      fullText.includes("low") ||
+      fullText.includes("p3") ||
+      fullText.includes("minor")
+    ) {
       priorities.push("Low");
     }
 
     // Check overdue badge
-    const isOverdue = cardEl.querySelector(".is-due-past, .is-overdue, [data-testid='due-date-badge-overdue']");
+    const isOverdue = cardEl.querySelector(
+      ".is-due-past, .is-overdue, [data-testid='due-date-badge-overdue']"
+    );
     if (isOverdue && !priorities.includes("Urgent")) {
       priorities.push("Urgent");
     }
@@ -146,12 +188,18 @@
   // Evaluate rule match for a given list
   function evaluateRule(rule, listName, allPriorities) {
     if (!rule.on) return false;
+
+    // Check list targeting
     if (!rule.all) {
-      if (!rule.lists || !rule.lists.includes(listName)) {
-        return false;
-      }
+      const targeted = rule.lists || [];
+      const matchesTarget = targeted.some(
+        (target) =>
+          target.toLowerCase().trim() === listName.toLowerCase().trim()
+      );
+      if (!matchesTarget) return false;
     }
 
+    // Check conditions
     const conds = rule.conds || [];
     if (conds.length === 0) return true;
 
@@ -174,16 +222,19 @@
 
     listWrappers.forEach((wrapper) => {
       // Find the actual list container element
-      const listContainer =
-        wrapper.matches('[data-testid="list"], .list, .js-list')
-          ? wrapper
-          : wrapper.querySelector('[data-testid="list"], .list, .js-list') || wrapper;
+      const listContainer = wrapper.matches('[data-testid="list"], .list, .js-list')
+        ? wrapper
+        : wrapper.querySelector('[data-testid="list"], .list, .js-list') || wrapper;
 
       // Extract list name
       const nameEl = listContainer.querySelector(
         '[data-testid="list-name"], [data-testid="list-name-textarea"], .list-header-name, h2'
       );
-      const listName = nameEl ? (nameEl.value || nameEl.textContent || "").trim() : "";
+      const listName = nameEl
+        ? (nameEl.value || nameEl.textContent || "").trim()
+        : "";
+
+      if (!listName) return;
 
       // Extract all cards in list
       const cardEls = listContainer.querySelectorAll(
@@ -207,15 +258,32 @@
         }
       }
 
+      const headerEl = listContainer.querySelector(
+        '[data-testid="list-header"], .list-header'
+      );
+      const cardsContainer = listContainer.querySelector(
+        '[data-testid="list-cards"], .list-cards'
+      );
+
       if (matchedRule) {
         const hex = COLORS[matchedRule.color] || matchedRule.color || "#0c66e4";
         listContainer.setAttribute("data-clc-colored", "true");
         listContainer.setAttribute("data-clc-rule", matchedRule.name);
+
+        // Apply list styling
         listContainer.style.setProperty("border-top", `4px solid ${hex}`, "important");
-        listContainer.style.setProperty("background-color", `${hex}14`, "important");
+        listContainer.style.setProperty("background-color", `${hex}18`, "important");
         listContainer.style.setProperty("border-left", `1px solid ${hex}40`, "important");
         listContainer.style.setProperty("border-right", `1px solid ${hex}40`, "important");
         listContainer.style.setProperty("border-bottom", `1px solid ${hex}40`, "important");
+
+        // Allow tint to shine through header and card container
+        if (headerEl) {
+          headerEl.style.setProperty("background", "transparent", "important");
+        }
+        if (cardsContainer) {
+          cardsContainer.style.setProperty("background", "transparent", "important");
+        }
       } else {
         if (listContainer.getAttribute("data-clc-colored") === "true") {
           listContainer.removeAttribute("data-clc-colored");
@@ -225,6 +293,9 @@
           listContainer.style.removeProperty("border-left");
           listContainer.style.removeProperty("border-right");
           listContainer.style.removeProperty("border-bottom");
+
+          if (headerEl) headerEl.style.removeProperty("background");
+          if (cardsContainer) cardsContainer.style.removeProperty("background");
         }
       }
     });
@@ -239,7 +310,8 @@
       document.querySelector('[data-testid="board-header"]') ||
       document.querySelector(".board-header") ||
       document.querySelector('[data-testid="board-actions"]') ||
-      document.querySelector(".board-header-btns");
+      document.querySelector(".board-header-btns") ||
+      document.querySelector(".js-board-header");
 
     if (!targetHeader) return;
 
@@ -256,13 +328,18 @@
 
     btn.addEventListener("click", openRulesModal);
 
-    // Append to header
     targetHeader.appendChild(btn);
   }
 
   // Open Modal Overlay directly on Trello
   function openRulesModal() {
     if (document.getElementById("clc-modal-overlay")) return;
+
+    // Capture live list names
+    const liveLists = getLiveBoardListNames();
+    try {
+      localStorage.setItem("clc_live_board_lists", JSON.stringify(liveLists));
+    } catch (e) {}
 
     const overlay = document.createElement("div");
     overlay.id = "clc-modal-overlay";
@@ -287,7 +364,8 @@
 
     const iframe = document.createElement("iframe");
     iframe.className = "clc-modal-iframe";
-    iframe.src = chrome.runtime.getURL("rules.html");
+    const listsQuery = encodeURIComponent(JSON.stringify(liveLists));
+    iframe.src = chrome.runtime.getURL(`rules.html?lists=${listsQuery}`);
 
     frame.appendChild(header);
     frame.appendChild(iframe);
@@ -299,7 +377,6 @@
     const overlay = document.getElementById("clc-modal-overlay");
     if (overlay) {
       overlay.remove();
-      // Re-apply rules immediately upon closing
       loadRules();
     }
   }
@@ -333,4 +410,3 @@
     init();
   }
 })();
-

@@ -13,6 +13,7 @@ import "./rules.css";
 
 export default function RulesModal({ t, onClose }) {
   const [rules, setRules] = useState([]);
+  const [boardLists, setBoardLists] = useState(BOARD_LIST_NAMES);
   const [selectedId, setSelectedId] = useState(null);
   const [theme, setTheme] = useState("dark");
   const [loading, setLoading] = useState(true);
@@ -37,6 +38,71 @@ export default function RulesModal({ t, onClose }) {
     localStorage.setItem(STORAGE_KEY_THEME, nextTheme);
     document.documentElement.setAttribute("data-theme", nextTheme);
   };
+
+  // Dynamically load live board list names
+  useEffect(() => {
+    async function fetchLiveLists() {
+      // 1. From URL query params (Extension mode)
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const urlLists = params.get("lists");
+        if (urlLists) {
+          const parsed = JSON.parse(decodeURIComponent(urlLists));
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setBoardLists(parsed);
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // 2. From cached live lists
+      try {
+        const cached = localStorage.getItem("clc_live_board_lists");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setBoardLists(parsed);
+          }
+        }
+      } catch (e) {}
+
+      // 3. From Trello Power-Up client
+      if (t && typeof t.lists === "function") {
+        try {
+          const trelloLists = await t.lists("id", "name");
+          if (Array.isArray(trelloLists) && trelloLists.length > 0) {
+            const names = trelloLists.map((l) => l.name).filter(Boolean);
+            if (names.length > 0) {
+              setBoardLists(names);
+              return;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 4. Request from parent window via postMessage
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: "CLC_GET_BOARD_LISTS" }, "*");
+        }
+      } catch (e) {}
+    }
+
+    fetchLiveLists();
+
+    function handleMessage(e) {
+      if (
+        e.data &&
+        e.data.type === "CLC_BOARD_LISTS_RESPONSE" &&
+        Array.isArray(e.data.lists) &&
+        e.data.lists.length > 0
+      ) {
+        setBoardLists(e.data.lists);
+      }
+    }
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [t]);
 
   // Load rules on mount
   useEffect(() => {
@@ -393,7 +459,7 @@ export default function RulesModal({ t, onClose }) {
                       <span>🌐</span>
                       <span>All Board Lists</span>
                     </button>
-                    {BOARD_LIST_NAMES.map((name) => {
+                    {boardLists.map((name) => {
                       const isListSelected =
                         !selectedRule.all &&
                         Array.isArray(selectedRule.lists) &&
