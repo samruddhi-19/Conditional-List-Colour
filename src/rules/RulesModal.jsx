@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
   COLORS,
+  COLOR_PRESETS,
   PRIORITIES,
   BOARD_LIST_NAMES,
-  PREVIEW_BOARD_LISTS,
   DEFAULT_RULES,
   createNewRule,
   getRules,
   saveRules,
-  evaluateRuleMatch,
   STORAGE_KEY_THEME,
 } from "../lib/rulesStorage.js";
 import "./rules.css";
