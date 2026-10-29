@@ -9,11 +9,29 @@ import {
   saveRules,
   STORAGE_KEY_THEME,
 } from "../lib/rulesStorage.js";
+import { getBoardLists as fetchApiBoardLists } from "../lib/trelloApi.js";
 import "./rules.css";
 
 export default function RulesModal({ t, onClose }) {
   const [rules, setRules] = useState([]);
-  const [boardLists, setBoardLists] = useState(BOARD_LIST_NAMES);
+  const [boardLists, setBoardLists] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlLists = params.get("lists");
+      if (urlLists) {
+        const parsed = JSON.parse(decodeURIComponent(urlLists));
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    try {
+      const cached = localStorage.getItem("clc_live_board_lists");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return BOARD_LIST_NAMES;
+  });
   const [selectedId, setSelectedId] = useState(null);
   const [theme, setTheme] = useState("dark");
   const [loading, setLoading] = useState(true);
@@ -69,18 +87,41 @@ export default function RulesModal({ t, onClose }) {
       // 3. From Trello Power-Up client
       if (t && typeof t.lists === "function") {
         try {
-          const trelloLists = await t.lists("id", "name");
+          let trelloLists = await t.lists("all");
+          if (!trelloLists || !trelloLists.length) {
+            trelloLists = await t.lists("id", "name");
+          }
           if (Array.isArray(trelloLists) && trelloLists.length > 0) {
             const names = trelloLists.map((l) => l.name).filter(Boolean);
             if (names.length > 0) {
               setBoardLists(names);
+              try {
+                localStorage.setItem("clc_live_board_lists", JSON.stringify(names));
+              } catch (e) {}
               return;
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn("Could not query t.lists in iframe:", e);
+        }
       }
 
-      // 4. Request from parent window via postMessage
+      // 4. From Trello REST API
+      try {
+        const apiLists = await fetchApiBoardLists(t);
+        if (Array.isArray(apiLists) && apiLists.length > 0) {
+          const names = apiLists.map((l) => l.name).filter(Boolean);
+          if (names.length > 0) {
+            setBoardLists(names);
+            try {
+              localStorage.setItem("clc_live_board_lists", JSON.stringify(names));
+            } catch (e) {}
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // 5. Request from parent window via postMessage
       try {
         if (window.parent && window.parent !== window) {
           window.parent.postMessage({ type: "CLC_GET_BOARD_LISTS" }, "*");

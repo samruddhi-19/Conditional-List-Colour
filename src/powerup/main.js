@@ -50,8 +50,23 @@ TrelloPowerUp.initialize({
             });
           }
 
+          let listNames = [];
+          try {
+            const boardLists = await t.lists("all");
+            if (Array.isArray(boardLists) && boardLists.length > 0) {
+              listNames = boardLists.map((l) => l.name).filter(Boolean);
+            }
+          } catch (err) {
+            console.warn("Could not retrieve lists in board-buttons callback:", err);
+          }
+
+          const query =
+            listNames.length > 0
+              ? `?lists=${encodeURIComponent(JSON.stringify(listNames))}`
+              : "";
+
           return t.modal({
-            url: "./rules.html",
+            url: `./rules.html${query}`,
             accentColor: "#22272b",
             fullscreen: false,
             height: 720,
@@ -78,8 +93,23 @@ TrelloPowerUp.initialize({
             });
           }
 
+          let listNames = [];
+          try {
+            const boardLists = await t.lists("all");
+            if (Array.isArray(boardLists) && boardLists.length > 0) {
+              listNames = boardLists.map((l) => l.name).filter(Boolean);
+            }
+          } catch (err) {
+            console.warn("Could not retrieve lists in list-actions callback:", err);
+          }
+
+          const query =
+            listNames.length > 0
+              ? `?lists=${encodeURIComponent(JSON.stringify(listNames))}`
+              : "";
+
           return t.modal({
-            url: "./rules.html",
+            url: `./rules.html${query}`,
             accentColor: "#22272b",
             fullscreen: false,
             height: 720,
