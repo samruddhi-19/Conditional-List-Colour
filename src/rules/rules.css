@@ -18,8 +18,8 @@
   --danger-soft: rgba(207, 34, 46, 0.1);
   --success: #1a7f37;
   --scrollbar-track: rgba(0, 0, 0, 0.04);
-  --scrollbar-thumb: rgba(0, 0, 0, 0.22);
-  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.38);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.25);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.45);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
@@ -41,9 +41,9 @@
     --danger: #f85149;
     --danger-soft: rgba(248, 81, 73, 0.15);
     --success: #238636;
-    --scrollbar-track: rgba(255, 255, 255, 0.03);
-    --scrollbar-thumb: rgba(255, 255, 255, 0.2);
-    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.35);
+    --scrollbar-track: rgba(255, 255, 255, 0.04);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.28);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.45);
     --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.3);
   }
 }
@@ -65,9 +65,9 @@
   --danger: #f85149;
   --danger-soft: rgba(248, 81, 73, 0.15);
   --success: #238636;
-  --scrollbar-track: rgba(255, 255, 255, 0.03);
-  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
-  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.35);
+  --scrollbar-track: rgba(255, 255, 255, 0.04);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.28);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.45);
   --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
@@ -89,8 +89,8 @@
   --danger-soft: rgba(207, 34, 46, 0.1);
   --success: #1a7f37;
   --scrollbar-track: rgba(0, 0, 0, 0.04);
-  --scrollbar-thumb: rgba(0, 0, 0, 0.22);
-  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.38);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.25);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.45);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
@@ -98,6 +98,7 @@
 .studio-backdrop {
   width: 100%;
   height: 100%;
+  max-height: 100%;
   background-color: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif;
@@ -110,6 +111,7 @@
 .studio-modal {
   width: 100%;
   height: 100%;
+  max-height: 100%;
   background-color: var(--surface);
   display: flex;
   flex-direction: column;
@@ -125,6 +127,8 @@
   background-color: var(--surface);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  height: 44px;
+  box-sizing: border-box;
   gap: 12px;
 }
 
@@ -184,18 +188,23 @@
   border-color: var(--text-muted);
 }
 
-/* Two-Sided Body Grid */
+/* Two-Sided Body Grid with strict row constraint */
 .studio-body {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 270px 1fr;
+  grid-template-rows: minmax(0, 1fr);
   flex: 1;
   min-height: 0;
+  max-height: calc(100% - 44px);
+  height: calc(100% - 44px);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 @media (max-width: 600px) {
   .studio-body {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
 }
 
@@ -206,11 +215,14 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
+  max-height: 100%;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .sidebar-header {
-  padding: 12px 14px 8px 14px;
+  padding: 10px 12px 6px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -243,8 +255,8 @@
   color: #ffffff;
   border: none;
   border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 11.5px;
+  padding: 4px 9px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -262,21 +274,23 @@
 }
 
 .sidebar-flow-hint {
-  font-size: 10.5px;
+  font-size: 10px;
   color: var(--text-muted);
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(0, 0, 0, 0.03);
   flex-shrink: 0;
 }
 
 .sidebar-rules-list {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
-  padding: 10px 12px;
+  min-height: 0;
+  padding: 8px 10px 20px 10px;
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
@@ -287,7 +301,7 @@
   align-items: stretch;
   background-color: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.18s ease;
   user-select: none;
@@ -320,10 +334,10 @@
 .rule-card-content {
   flex: 1;
   min-width: 0;
-  padding: 9px 11px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .rule-card-title-row {
@@ -333,11 +347,11 @@
 }
 
 .rule-step-number {
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
   color: var(--text-muted);
   background: var(--side);
-  padding: 1px 5px;
+  padding: 1px 4px;
   border-radius: 4px;
   border: 1px solid var(--border-subtle);
 }
@@ -353,7 +367,7 @@
 }
 
 .rule-card-meta {
-  font-size: 10.5px;
+  font-size: 10px;
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -364,7 +378,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 4px 5px;
+  padding: 3px 4px;
   gap: 2px;
   border-left: 1px solid var(--border-subtle);
   background: var(--side);
@@ -393,30 +407,34 @@
   cursor: default;
 }
 
-/* RIGHT PANEL: Rule Studio Editor */
+/* RIGHT PANEL: Rule Studio Editor (Scrolling Enabled & Guaranteed) */
 .studio-main-panel {
-  padding: 16px 22px;
+  padding: 12px 18px 28px 18px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  box-sizing: border-box;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-/* Section Card Frame */
+/* Section Card Frame - Compact SaaS Styling */
 .studio-section-card {
   background-color: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px 16px;
+  border-radius: 7px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   box-shadow: var(--shadow-card);
+  flex-shrink: 0;
 }
 
 .flow-step-header {
@@ -426,8 +444,8 @@
 }
 
 .step-circle-badge {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
   background: var(--border);
   color: var(--text);
@@ -451,11 +469,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
+  padding: 8px 12px;
   background-color: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 7px;
   box-shadow: var(--shadow-card);
+  flex-shrink: 0;
 }
 
 .rule-name-input-group {
@@ -465,31 +484,31 @@
 
 .rule-name-input-styled {
   width: 100%;
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text);
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 7px 12px;
+  border-radius: 5px;
+  padding: 6px 11px;
   outline: none;
   transition: all 0.15s ease;
 }
 
 .rule-name-input-styled:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 /* Modern Switch */
 .switch-control-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
+  gap: 7px;
+  padding: 5px 10px;
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
@@ -500,14 +519,14 @@
 }
 
 .switch-label-text {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--text);
 }
 
 .switch-track-styled {
-  width: 32px;
-  height: 18px;
+  width: 30px;
+  height: 17px;
   background-color: var(--border);
   border-radius: 10px;
   position: relative;
@@ -519,8 +538,8 @@
 }
 
 .switch-thumb-styled {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   background-color: #ffffff;
   border-radius: 50%;
   position: absolute;
@@ -531,13 +550,13 @@
 }
 
 .switch-track-styled.is-on .switch-thumb-styled {
-  transform: translateX(14px);
+  transform: translateX(13px);
 }
 
 .action-btn-clean {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-muted);
@@ -570,13 +589,13 @@
 .scope-chip-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 6px;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 5px;
   border: 1px solid var(--border);
   background-color: var(--surface);
   color: var(--text);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -605,7 +624,7 @@
 .logic-pill-control {
   display: inline-flex;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 5px;
   padding: 2px;
   background-color: var(--surface);
 }
@@ -613,12 +632,12 @@
 .logic-toggle-item {
   border: none;
   background: transparent;
-  padding: 3px 10px;
-  font-size: 10.5px;
+  padding: 2px 8px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--text-muted);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 3px;
   transition: all 0.15s ease;
 }
 
@@ -632,14 +651,14 @@
   background: transparent;
   border: 1px solid var(--accent-soft);
   color: var(--accent);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
-  border-radius: 5px;
+  padding: 3px 7px;
+  border-radius: 4px;
   transition: all 0.15s ease;
 }
 
@@ -655,24 +674,24 @@
 .conditions-stack {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .condition-statement-card {
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 9px 12px;
+  border-radius: 5px;
+  padding: 7px 10px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 5px;
 }
 
 .condition-top-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   color: var(--text-muted);
   letter-spacing: 0.04em;
@@ -682,11 +701,11 @@
   background: transparent;
   border: none;
   color: var(--danger);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
   cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 1px 5px;
+  border-radius: 3px;
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -705,31 +724,31 @@
 .condition-controls-sentence {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   flex-wrap: wrap;
 }
 
 .type-badge-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11.5px;
+  gap: 3px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text);
   background-color: var(--side);
   border: 1px solid var(--border);
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 4px;
 }
 
 .select-priority-styled {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
   color: var(--text);
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 4px 10px;
+  padding: 3px 8px;
   outline: none;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -750,26 +769,26 @@
 .active-color-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 9px;
+  gap: 5px;
+  padding: 2px 8px;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text);
 }
 
 .color-dot-indicator {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
 }
 
 .mini-list-presets-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 7px;
 }
 
 @media (max-width: 700px) {
@@ -782,11 +801,11 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 8px;
+  padding: 6px 8px;
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   transition: all 0.18s ease;
   user-select: none;
@@ -795,7 +814,7 @@
 .preset-preview-card:hover {
   border-color: var(--text-muted);
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 .preset-preview-card.is-selected {
@@ -805,8 +824,8 @@
 }
 
 .mini-board-list {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.15);
   display: flex;
@@ -816,7 +835,7 @@
 }
 
 .mini-board-list-bar {
-  height: 8px;
+  height: 7px;
   width: 100%;
 }
 
@@ -825,11 +844,11 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 3px;
+  padding: 2px;
 }
 
 .mini-card-ghost {
-  height: 4px;
+  height: 3px;
   width: 100%;
   border-radius: 1px;
 }
@@ -842,7 +861,7 @@
 }
 
 .preset-card-name {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text);
   white-space: nowrap;
@@ -851,7 +870,7 @@
 }
 
 .preset-card-sub {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -860,10 +879,10 @@
 
 .preset-card-check-pill {
   position: absolute;
-  right: 8px;
-  top: 8px;
-  width: 15px;
-  height: 15px;
+  right: 6px;
+  top: 6px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -874,18 +893,19 @@
 .rule-formula-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: 7px;
+  padding: 8px 12px;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-left-width: 4px;
-  border-radius: 6px;
-  font-size: 11.5px;
+  border-radius: 5px;
+  font-size: 11px;
   line-height: 1.4;
+  flex-shrink: 0;
 }
 
 .formula-icon {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .formula-text {
@@ -895,14 +915,13 @@
 /* Custom Scrollbars */
 .studio-main-panel::-webkit-scrollbar,
 .sidebar-rules-list::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 .studio-main-panel::-webkit-scrollbar-track,
 .sidebar-rules-list::-webkit-scrollbar-track {
   background: var(--scrollbar-track);
-  border-radius: 4px;
 }
 
 .studio-main-panel::-webkit-scrollbar-thumb,

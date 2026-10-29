@@ -54,7 +54,7 @@ TrelloPowerUp.initialize({
             url: "./rules.html",
             accentColor: "#22272b",
             fullscreen: false,
-            height: 680,
+            height: 720,
             width: 1020,
             title: "Conditional List Color Rule Studio",
           });
@@ -82,7 +82,7 @@ TrelloPowerUp.initialize({
             url: "./rules.html",
             accentColor: "#22272b",
             fullscreen: false,
-            height: 680,
+            height: 720,
             width: 1020,
             title: "Conditional List Color Rule Studio",
           });
