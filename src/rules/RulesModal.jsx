@@ -229,11 +229,11 @@ export default function RulesModal({ t, onClose }) {
 
         {/* Two-Sided Body Grid */}
         <div className="studio-body">
-          {/* Left Sidebar: Precedence Ladder Pipeline */}
+          {/* Left Sidebar: Precedence Ladder */}
           <aside className="studio-sidebar">
             <div className="sidebar-header">
               <div className="sidebar-title-badge">
-                <span>Precedence Ladder</span>
+                <span>Rules</span>
                 <span className="rule-count-pill">{rules.length}</span>
               </div>
               <button
@@ -242,18 +242,18 @@ export default function RulesModal({ t, onClose }) {
                 onClick={handleAddRule}
               >
                 <span>+</span>
-                <span>New Rule</span>
+                <span>New</span>
               </button>
             </div>
 
             <div className="sidebar-flow-hint">
-              <span>↓ Order of priority (1st match styles list)</span>
+              <span>↓ Order of priority (1st match wins)</span>
             </div>
 
             <div className="sidebar-rules-list">
               {rules.length === 0 ? (
                 <div style={{ padding: "30px 10px", textAlign: "center", color: "var(--text-muted)", fontSize: "12px" }}>
-                  No rules yet.<br />Click "+ New Rule" to create one.
+                  No rules yet.<br />Click "+ New" to create one.
                 </div>
               ) : (
                 rules.map((rule, idx) => {
@@ -322,28 +322,26 @@ export default function RulesModal({ t, onClose }) {
             </div>
           </aside>
 
-          {/* Right Panel: Rule Studio Canvas */}
+          {/* Right Panel: Clean Unified Canvas */}
           <main className="studio-main-panel">
             {!selectedRule ? (
               <div style={{ padding: "60px 20px", textAlign: "center", color: "var(--text-muted)" }}>
                 <h3>No Rule Selected</h3>
-                <p style={{ fontSize: "12px" }}>Select a rule from the left pipeline or create a new one.</p>
+                <p style={{ fontSize: "12px" }}>Select a rule from the left ladder or create a new one.</p>
               </div>
             ) : (
               <>
-                {/* 1. Header Card: Rule Title & Status Bar */}
-                <div className="editor-title-card">
-                  <div className="rule-name-input-group">
-                    <input
-                      type="text"
-                      className="rule-name-input-styled"
-                      value={selectedRule.name}
-                      onChange={(e) =>
-                        updateSelectedRule({ name: e.target.value })
-                      }
-                      placeholder="e.g. Critical Blocker Alert"
-                    />
-                  </div>
+                {/* 1. Rule Name & Status Row */}
+                <div className="editor-title-row">
+                  <input
+                    type="text"
+                    className="rule-name-input-styled"
+                    value={selectedRule.name}
+                    onChange={(e) =>
+                      updateSelectedRule({ name: e.target.value })
+                    }
+                    placeholder="e.g. Critical Blocker Alert"
+                  />
 
                   <div
                     className="switch-control-pill"
@@ -383,12 +381,9 @@ export default function RulesModal({ t, onClose }) {
                   </button>
                 </div>
 
-                {/* 2. Step 1: Target Scope Section */}
-                <div className="studio-section-card">
-                  <div className="flow-step-header">
-                    <div className="step-circle-badge">1</div>
-                    <span className="section-eyebrow">Where to Apply</span>
-                  </div>
+                {/* 2. Target Lists Section */}
+                <div className="editor-section">
+                  <span className="editor-section-eyebrow">Target Lists</span>
                   <div className="scope-chips-wrapper">
                     <button
                       type="button"
@@ -421,13 +416,10 @@ export default function RulesModal({ t, onClose }) {
                   </div>
                 </div>
 
-                {/* 3. Step 2: Conditions Trigger Section */}
-                <div className="studio-section-card">
+                {/* 3. Conditions Section */}
+                <div className="editor-section">
                   <div className="conditions-header-row">
-                    <div className="flow-step-header">
-                      <div className="step-circle-badge">2</div>
-                      <span className="section-eyebrow">When Conditions Match (Trigger)</span>
-                    </div>
+                    <span className="editor-section-eyebrow">When Conditions Match</span>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <div className="logic-pill-control">
                         <button
@@ -471,30 +463,14 @@ export default function RulesModal({ t, onClose }) {
 
                       return (
                         <div key={idx} className="condition-statement-card">
-                          <div className="condition-top-line">
-                            <span>CONDITION #0{idx + 1}</span>
-                            <button
-                              type="button"
-                              className="btn-remove-condition-clean"
-                              disabled={!canRemove}
-                              onClick={() => handleRemoveCondition(idx)}
-                              title={canRemove ? "Remove condition" : "At least one condition required"}
-                            >
-                              <span>🗑</span>
-                              <span>Remove</span>
-                            </button>
-                          </div>
-
                           <div className="condition-controls-sentence">
-                            <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>List has a card with</span>
+                            <span className="cond-sentence-label">List has card with</span>
                             <div className="type-badge-pill">
                               <span>⚡</span>
                               <span>Priority</span>
                             </div>
 
-                            <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-                              equal to
-                            </span>
+                            <span className="cond-sentence-label">equal to</span>
 
                             <select
                               className="select-priority-styled"
@@ -510,75 +486,74 @@ export default function RulesModal({ t, onClose }) {
                               ))}
                             </select>
                           </div>
+
+                          {canRemove && (
+                            <button
+                              type="button"
+                              className="btn-remove-condition-clean"
+                              onClick={() => handleRemoveCondition(idx)}
+                              title="Remove condition"
+                              aria-label="Remove Condition"
+                            >
+                              ✕
+                            </button>
+                          )}
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* 4. Step 3: List Appearance & Color Presets (Interactive Mini-List Cards) */}
-                <div className="studio-section-card">
+                {/* 4. List Accent Color Section - Sleek 1-Row Swatch Bar */}
+                <div className="editor-section">
                   <div className="appearance-header-row">
-                    <div className="flow-step-header">
-                      <div className="step-circle-badge">3</div>
-                      <span className="section-eyebrow">List Appearance &amp; Color Style</span>
-                    </div>
-                    <div className="active-color-pill">
+                    <span className="editor-section-eyebrow">List Accent Color</span>
+                    <span
+                      className="selected-color-tag"
+                      style={{
+                        color: activePreset.hex,
+                        backgroundColor: `${activePreset.hex}18`,
+                        borderColor: `${activePreset.hex}40`,
+                      }}
+                    >
                       <span
                         className="color-dot-indicator"
                         style={{ backgroundColor: activePreset.hex }}
                       />
                       <span>{activePreset.name}</span>
-                    </div>
+                      <span className="selected-color-role">({activePreset.subtitle})</span>
+                    </span>
                   </div>
 
-                  <div className="mini-list-presets-grid">
+                  <div className="swatches-row">
                     {COLOR_PRESETS.map((preset) => {
                       const isSelected = selectedRule.color === preset.key;
 
                       return (
-                        <div
+                        <button
                           key={preset.key}
-                          className={`preset-preview-card ${isSelected ? "is-selected" : ""}`}
+                          type="button"
+                          className={`swatch-pill-btn ${isSelected ? "is-selected" : ""}`}
+                          style={{ backgroundColor: preset.hex }}
                           onClick={() => updateSelectedRule({ color: preset.key })}
-                          title={`Select ${preset.name}`}
+                          title={`${preset.name} (${preset.subtitle})`}
+                          aria-label={preset.name}
                         >
-                          <div
-                            className="mini-board-list"
-                            style={{
-                              backgroundColor: `${preset.hex}14`,
-                              borderColor: `${preset.hex}40`,
-                            }}
-                          >
-                            <div
-                              className="mini-board-list-bar"
-                              style={{ backgroundColor: preset.hex }}
-                            />
-                            <div className="mini-board-list-body">
-                              <div
-                                className="mini-card-ghost"
-                                style={{ backgroundColor: `${preset.hex}33` }}
-                              />
-                              <div
-                                className="mini-card-ghost"
-                                style={{ backgroundColor: `${preset.hex}33` }}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="preset-card-text">
-                            <span className="preset-card-name">{preset.name}</span>
-                            <span className="preset-card-sub">{preset.subtitle || "Theme"}</span>
-                          </div>
-
                           {isSelected && (
-                            <div className="preset-card-check-pill" style={{ backgroundColor: preset.hex }}>
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3">
-                                <polyline points="20 6 9 17 4 12" />
-                              </svg>
-                            </div>
+                            <svg
+                              width="13"
+                              height="13"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="#ffffff"
+                              strokeWidth="3.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
                           )}
-                        </div>
+                        </button>
                       );
                     })}
                   </div>

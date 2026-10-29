@@ -1,4 +1,4 @@
-/* Conditional List Color Rule Studio - Modern Executive UI */
+/* Conditional List Color Rule Studio - Clean Executive UI */
 
 :root {
   --bg: #f6f8fa;
@@ -18,8 +18,8 @@
   --danger-soft: rgba(207, 34, 46, 0.1);
   --success: #1a7f37;
   --scrollbar-track: rgba(0, 0, 0, 0.04);
-  --scrollbar-thumb: rgba(0, 0, 0, 0.25);
-  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.45);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.22);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.42);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
@@ -89,8 +89,8 @@
   --danger-soft: rgba(207, 34, 46, 0.1);
   --success: #1a7f37;
   --scrollbar-track: rgba(0, 0, 0, 0.04);
-  --scrollbar-thumb: rgba(0, 0, 0, 0.25);
-  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.45);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.22);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.42);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
@@ -118,7 +118,7 @@
   overflow: hidden;
 }
 
-/* Minimal Sub-header Toolbar (Seamless with Trello window) */
+/* Top Toolbar */
 .studio-toolbar {
   display: flex;
   align-items: center;
@@ -188,10 +188,10 @@
   border-color: var(--text-muted);
 }
 
-/* Two-Sided Body Grid with strict row constraint */
+/* Balanced Two-Sided Body Grid */
 .studio-body {
   display: grid;
-  grid-template-columns: 270px 1fr;
+  grid-template-columns: 235px 1fr;
   grid-template-rows: minmax(0, 1fr);
   flex: 1;
   min-height: 0;
@@ -201,14 +201,14 @@
   box-sizing: border-box;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 620px) {
   .studio-body {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
   }
 }
 
-/* LEFT SIDEBAR: Precedence Ladder Pipeline */
+/* LEFT SIDEBAR: Clean Precedence Ladder */
 .studio-sidebar {
   background-color: var(--side);
   border-right: 1px solid var(--border);
@@ -254,14 +254,14 @@
   background-color: var(--accent);
   color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   padding: 4px 9px;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   transition: background 0.15s ease, transform 0.1s;
 }
 
@@ -285,12 +285,12 @@
 .sidebar-rules-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
   min-height: 0;
-  padding: 8px 10px 20px 10px;
+  padding: 8px 10px 16px 10px;
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
@@ -319,7 +319,7 @@
 .pipeline-rule-card.is-active {
   border-color: var(--accent);
   background-color: var(--surface);
-  box-shadow: 0 0 0 1px var(--accent), 0 3px 10px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 0 1px var(--accent), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .pipeline-rule-card.is-disabled {
@@ -327,17 +327,17 @@
 }
 
 .rule-stripe-accent {
-  width: 5px;
+  width: 4px;
   flex-shrink: 0;
 }
 
 .rule-card-content {
   flex: 1;
   min-width: 0;
-  padding: 8px 10px;
+  padding: 7px 9px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .rule-card-title-row {
@@ -352,12 +352,12 @@
   color: var(--text-muted);
   background: var(--side);
   padding: 1px 4px;
-  border-radius: 4px;
+  border-radius: 3px;
   border: 1px solid var(--border-subtle);
 }
 
 .rule-card-title {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--text);
   white-space: nowrap;
@@ -367,7 +367,7 @@
 }
 
 .rule-card-meta {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -378,8 +378,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 3px 4px;
-  gap: 2px;
+  padding: 2px 3px;
+  gap: 1px;
   border-left: 1px solid var(--border-subtle);
   background: var(--side);
 }
@@ -407,12 +407,12 @@
   cursor: default;
 }
 
-/* RIGHT PANEL: Rule Studio Editor (Scrolling Enabled & Guaranteed) */
+/* RIGHT PANEL: Clean Unified Canvas (No Clutter, Generous Breathing Room) */
 .studio-main-panel {
-  padding: 12px 18px 28px 18px;
+  padding: 16px 24px 28px 24px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 18px;
   overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
@@ -424,73 +424,25 @@
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-/* Section Card Frame - Compact SaaS Styling */
-.studio-section-card {
-  background-color: var(--surface-card);
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-shadow: var(--shadow-card);
-  flex-shrink: 0;
-}
-
-.flow-step-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.step-circle-badge {
-  width: 17px;
-  height: 17px;
-  border-radius: 50%;
-  background: var(--border);
-  color: var(--text);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.section-eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-/* 1. Header Card: Rule Title & Status Bar */
-.editor-title-card {
+/* 1. Rule Name & Status Row (Clean borderless header) */
+.editor-title-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
-  background-color: var(--surface-card);
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  box-shadow: var(--shadow-card);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
   flex-shrink: 0;
 }
 
-.rule-name-input-group {
-  flex: 1;
-  display: flex;
-}
-
 .rule-name-input-styled {
-  width: 100%;
-  font-size: 14px;
+  flex: 1;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text);
-  background-color: var(--surface);
+  background-color: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 6px 11px;
+  border-radius: 6px;
+  padding: 7px 12px;
   outline: none;
   transition: all 0.15s ease;
 }
@@ -505,10 +457,10 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 5px 10px;
-  background-color: var(--surface);
+  padding: 6px 12px;
+  background-color: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
@@ -525,8 +477,8 @@
 }
 
 .switch-track-styled {
-  width: 30px;
-  height: 17px;
+  width: 28px;
+  height: 16px;
   background-color: var(--border);
   border-radius: 10px;
   position: relative;
@@ -538,8 +490,8 @@
 }
 
 .switch-thumb-styled {
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
   background-color: #ffffff;
   border-radius: 50%;
   position: absolute;
@@ -550,15 +502,15 @@
 }
 
 .switch-track-styled.is-on .switch-thumb-styled {
-  transform: translateX(13px);
+  transform: translateX(12px);
 }
 
 .action-btn-clean {
-  width: 30px;
-  height: 30px;
-  border-radius: 5px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   border: 1px solid var(--border);
-  background: var(--surface);
+  background: var(--surface-card);
   color: var(--text-muted);
   cursor: pointer;
   display: flex;
@@ -579,7 +531,23 @@
   border-color: var(--danger);
 }
 
-/* 2. Target Scope Section */
+/* Unified Section Block (No Box-in-Box Framing) */
+.editor-section {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
+.editor-section-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* 2. Target Scope Chips (Fits in 1 Row) */
 .scope-chips-wrapper {
   display: flex;
   flex-wrap: wrap;
@@ -590,10 +558,10 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
-  border-radius: 5px;
+  padding: 5px 11px;
+  border-radius: 6px;
   border: 1px solid var(--border);
-  background-color: var(--surface);
+  background-color: var(--surface-card);
   color: var(--text);
   font-size: 11.5px;
   font-weight: 500;
@@ -626,14 +594,14 @@
   border: 1px solid var(--border);
   border-radius: 5px;
   padding: 2px;
-  background-color: var(--surface);
+  background-color: var(--surface-card);
 }
 
 .logic-toggle-item {
   border: none;
   background: transparent;
-  padding: 2px 8px;
-  font-size: 10px;
+  padding: 3px 9px;
+  font-size: 10.5px;
   font-weight: 500;
   color: var(--text-muted);
   cursor: pointer;
@@ -651,14 +619,14 @@
   background: transparent;
   border: 1px solid var(--accent-soft);
   color: var(--accent);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 7px;
-  border-radius: 4px;
+  padding: 3px 8px;
+  border-radius: 5px;
   transition: all 0.15s ease;
 }
 
@@ -674,81 +642,53 @@
 .conditions-stack {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .condition-statement-card {
-  background-color: var(--surface);
+  background-color: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 7px 10px;
+  border-radius: 6px;
+  padding: 8px 12px;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.condition-top-line {
-  display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  font-size: 9.5px;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.04em;
-}
-
-.btn-remove-condition-clean {
-  background: transparent;
-  border: none;
-  color: var(--danger);
-  font-size: 10.5px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 1px 5px;
-  border-radius: 3px;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  transition: all 0.15s ease;
-}
-
-.btn-remove-condition-clean:hover:not(:disabled) {
-  background-color: var(--danger-soft);
-}
-
-.btn-remove-condition-clean:disabled {
-  opacity: 0.25;
-  cursor: default;
+  gap: 8px;
 }
 
 .condition-controls-sentence {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   flex-wrap: wrap;
+}
+
+.cond-sentence-label {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .type-badge-pill {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  font-size: 11px;
+  gap: 4px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--text);
-  background-color: var(--side);
+  background-color: var(--surface);
   border: 1px solid var(--border);
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 4px;
 }
 
 .select-priority-styled {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text);
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 3px 8px;
+  padding: 4px 10px;
   outline: none;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -759,24 +699,51 @@
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
-/* 4. List Appearance Section: Interactive Mini-List Presets */
+.btn-remove-condition-clean {
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.btn-remove-condition-clean:hover {
+  background-color: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* 4. List Accent Color Section: Sleek 1-Row Swatch Bar */
 .appearance-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.active-color-pill {
+.selected-color-tag {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 2px 8px;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
+  gap: 6px;
+  padding: 3px 10px;
   border-radius: 12px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
-  color: var(--text);
+  border: 1px solid;
+  transition: all 0.15s ease;
+}
+
+.selected-color-role {
+  font-size: 10.5px;
+  font-weight: 400;
+  opacity: 0.75;
 }
 
 .color-dot-indicator {
@@ -785,121 +752,50 @@
   border-radius: 50%;
 }
 
-.mini-list-presets-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 7px;
-}
-
-@media (max-width: 700px) {
-  .mini-list-presets-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.preset-preview-card {
-  position: relative;
+.swatches-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.18s ease;
-  user-select: none;
+  flex-wrap: wrap;
+  padding: 2px 0;
 }
 
-.preset-preview-card:hover {
-  border-color: var(--text-muted);
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-}
-
-.preset-preview-card.is-selected {
-  border-color: var(--accent);
-  background-color: var(--accent-soft);
-  box-shadow: 0 0 0 2px var(--accent);
-}
-
-.mini-board-list {
+.swatch-pill-btn {
   width: 32px;
   height: 32px;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.mini-board-list-bar {
-  height: 7px;
-  width: 100%;
-}
-
-.mini-board-list-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 2px;
-}
-
-.mini-card-ghost {
-  height: 3px;
-  width: 100%;
-  border-radius: 1px;
-}
-
-.preset-card-text {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.preset-card-name {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.preset-card-sub {
-  font-size: 9.5px;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.preset-card-check-pill {
-  position: absolute;
-  right: 6px;
-  top: 6px;
-  width: 14px;
-  height: 14px;
   border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  outline: none;
+}
+
+.swatch-pill-btn:hover {
+  transform: scale(1.12);
+  filter: brightness(1.1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+.swatch-pill-btn.is-selected {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+  transform: scale(1.08);
 }
 
 /* 5. Formula Bar */
 .rule-formula-bar {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 12px;
-  background-color: var(--surface);
+  gap: 8px;
+  padding: 10px 14px;
+  background-color: var(--surface-card);
   border: 1px solid var(--border);
   border-left-width: 4px;
-  border-radius: 5px;
-  font-size: 11px;
+  border-radius: 6px;
+  font-size: 11.5px;
   line-height: 1.4;
   flex-shrink: 0;
 }
