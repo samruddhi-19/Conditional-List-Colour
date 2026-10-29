@@ -233,7 +233,7 @@ export default function RulesModal({ t, onClose }) {
           <aside className="studio-sidebar">
             <div className="sidebar-header">
               <div className="sidebar-title-badge">
-                <span>Rules</span>
+                <span>Rules Order</span>
                 <span className="rule-count-pill">{rules.length}</span>
               </div>
               <button
@@ -242,7 +242,7 @@ export default function RulesModal({ t, onClose }) {
                 onClick={handleAddRule}
               >
                 <span>+</span>
-                <span>New</span>
+                <span>New Rule</span>
               </button>
             </div>
 
