@@ -16,15 +16,15 @@ export const COLORS = {
 };
 
 export const COLOR_PRESETS = [
-  { name: "Ocean Blue", key: "blue", hex: "#0c66e4" },
-  { name: "Coral Red", key: "red", hex: "#e34935" },
-  { name: "Amber Orange", key: "orange", hex: "#d97008" },
-  { name: "Sun Gold", key: "yellow", hex: "#e2b203" },
-  { name: "Emerald Green", key: "green", hex: "#1f845a" },
-  { name: "Teal Cyan", key: "teal", hex: "#227d9b" },
-  { name: "Amethyst Purple", key: "purple", hex: "#8270db" },
-  { name: "Rose Pink", key: "pink", hex: "#e774bb" },
-  { name: "Slate Charcoal", key: "slate", hex: "#626f86" },
+  { name: "Coral Red", key: "red", hex: "#e34935", subtitle: "Critical Alerts" },
+  { name: "Amber Orange", key: "orange", hex: "#d97008", subtitle: "Active Focus" },
+  { name: "Sun Gold", key: "yellow", hex: "#e2b203", subtitle: "Attention Needed" },
+  { name: "Emerald Green", key: "green", hex: "#1f845a", subtitle: "Shipped & Done" },
+  { name: "Ocean Blue", key: "blue", hex: "#0c66e4", subtitle: "Sprint Backlog" },
+  { name: "Teal Cyan", key: "teal", hex: "#227d9b", subtitle: "In Progress" },
+  { name: "Amethyst Purple", key: "purple", hex: "#8270db", subtitle: "Review & QA" },
+  { name: "Rose Pink", key: "pink", hex: "#e774bb", subtitle: "Design & UX" },
+  { name: "Slate Charcoal", key: "slate", hex: "#626f86", subtitle: "Archived & Other" },
 ];
 
 export const PRIORITIES = ["Urgent", "High", "Medium", "Low"];
