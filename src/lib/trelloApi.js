@@ -176,13 +176,13 @@ export async function getBoardCards(t) {
 export async function updateCardCover(
   t,
   cardId,
-  { color = null, size = "full", brightness = "dark" } = {}
+  { color = null, size = "normal", brightness = "dark" } = {}
 ) {
   const body = color
     ? {
         cover: {
           color,
-          size,
+          size: "normal", // Top Banner only
           brightness,
         },
       }
@@ -310,7 +310,7 @@ function notifyExtension(rules) {
  */
 export async function applyRulesToBoardCards(t, rules = [], options = {}) {
   const {
-    coverStyle = "full", // "full" = solid card fill, "normal" = top banner strip
+    coverStyle = "normal", // Always 'normal' for top banner accent
     resetUnmatched = false,
     onProgress = () => {},
   } = options;

@@ -189,7 +189,7 @@
   }
 
   // Evaluate rule match for a given list
-  function evaluateRule(rule, listName, allPriorities) {
+  function evaluateRule(rule, listContainer, listName, allPriorities, cardEls = []) {
     if (!rule.on) return false;
 
     // Check list targeting
@@ -206,7 +206,95 @@
     const conds = rule.conds || [];
     if (conds.length === 0) return true;
 
-    const testCondition = (c) => c.p === "Any" || allPriorities.includes(c.p);
+    const cardCount = cardEls ? cardEls.length : 0;
+
+    const testCondition = (c) => {
+      const type = c.type || (c.p ? "priority" : "due_date");
+      const val = c.value || c.p || "overdue";
+
+      // 1. Task Count (Number of Task)
+      if (type === "task_count") {
+        if (val === "gt_10") return cardCount > 10;
+        if (val === "gt_5") return cardCount > 5;
+        if (val === "gt_3") return cardCount > 3;
+        if (val === "lt_3") return cardCount > 0 && cardCount < 3;
+        if (val === "empty") return cardCount === 0;
+        if (val === "has_tasks") return cardCount > 0;
+        return false;
+      }
+
+      // 2. Due Date
+      if (type === "due_date") {
+        if (val === "overdue") {
+          return Boolean(
+            listContainer.querySelector(
+              ".is-due-past, .is-overdue, [data-testid='due-date-badge-overdue']"
+            )
+          );
+        }
+        if (val === "complete") {
+          return Boolean(
+            listContainer.querySelector(
+              ".is-due-complete, [data-testid='due-date-badge-complete']"
+            )
+          );
+        }
+        if (val === "today" || val === "tomorrow" || val === "week") {
+          return Boolean(
+            listContainer.querySelector(
+              ".is-due-soon, [data-testid*='due-date']"
+            )
+          );
+        }
+        if (val === "no_date") {
+          return Array.from(cardEls).some(
+            (el) => !el.querySelector("[data-testid*='due-date'], .is-due")
+          );
+        }
+      }
+
+      // 3. Checklist
+      if (type === "checklist") {
+        if (val === "incomplete") {
+          return Array.from(cardEls).some((el) => {
+            const badge = el.querySelector(
+              '[data-testid="checklist-badge"], .icon-checklist'
+            );
+            return (
+              badge &&
+              !badge.closest(".is-complete, .badge-state-complete")
+            );
+          });
+        }
+        if (val === "complete") {
+          return Boolean(
+            listContainer.querySelector(
+              ".is-complete, .badge-state-complete, [data-testid*='checklist-complete']"
+            )
+          );
+        }
+        if (val === "has_checklist") {
+          return Boolean(
+            listContainer.querySelector(
+              '[data-testid="checklist-badge"], .icon-checklist'
+            )
+          );
+        }
+        if (val === "no_checklist") {
+          return !listContainer.querySelector(
+            '[data-testid="checklist-badge"], .icon-checklist'
+          );
+        }
+      }
+
+      // 4. Priority
+      if (type === "priority") {
+        if (val === "Any") return cardCount > 0;
+        return allPriorities.includes(val);
+      }
+
+      return false;
+    };
 
     if (rule.logic === "OR") {
       return conds.some(testCondition);
@@ -255,7 +343,7 @@
       // Find first matching rule (top-to-bottom precedence)
       let matchedRule = null;
       for (const rule of currentRules) {
-        if (evaluateRule(rule, listName, allPriorities)) {
+        if (evaluateRule(rule, listContainer, listName, allPriorities, cardEls)) {
           matchedRule = rule;
           break;
         }

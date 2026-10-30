@@ -654,50 +654,111 @@
 .condition-statement-card {
   background-color: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 12px;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.15s ease;
+}
+
+.condition-statement-card:hover {
+  border-color: var(--accent);
+}
+
+.condition-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
 }
 
-.condition-controls-sentence {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.cond-sentence-label {
-  font-size: 12px;
+.condition-step-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
+  text-transform: uppercase;
 }
 
-.type-badge-pill {
+.btn-remove-condition-styled {
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--text);
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  padding: 3px 8px;
+  padding: 2px 6px;
   border-radius: 4px;
+  transition: all 0.15s ease;
+  opacity: 0.85;
 }
 
-.select-priority-styled {
+.btn-remove-condition-styled:hover {
+  background-color: var(--danger-soft);
+  opacity: 1;
+}
+
+.condition-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.condition-field-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.condition-field-group.is-flex-1 {
+  flex: 1;
+  min-width: 220px;
+}
+
+.condition-field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.select-condition-type,
+.select-condition-value {
   font-size: 12px;
   font-weight: 500;
   color: var(--text);
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 4px 10px;
+  border-radius: 6px;
+  padding: 6px 12px;
   outline: none;
   cursor: pointer;
   transition: all 0.15s ease;
+}
+
+.select-condition-type:hover,
+.select-condition-value:hover {
+  border-color: var(--accent);
+}
+
+.select-condition-type:focus,
+.select-condition-value:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.select-condition-value {
+  width: 100%;
+}
+
+.condition-arrow-separator {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .select-priority-styled:focus {
@@ -891,39 +952,18 @@
   flex-wrap: wrap;
 }
 
-.style-segmented-control {
+.banner-badge-indicator {
   display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 2px;
-  gap: 2px;
-}
-
-.style-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  background: transparent;
-  color: var(--text-muted);
-  border: none;
-  border-radius: 4px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.style-btn:hover:not(.is-active) {
   color: var(--text);
-  background-color: var(--surface-card-hover);
-}
-
-.style-btn.is-active {
-  background-color: var(--accent);
-  color: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .checkbox-unmatched-label {

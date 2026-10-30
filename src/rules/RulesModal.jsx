@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   COLORS,
   COLOR_PRESETS,
-  PRIORITIES,
+  CONDITION_TYPES,
+  CONDITION_OPTIONS,
   BOARD_LIST_NAMES,
   createNewRule,
   getRules,
@@ -51,17 +52,9 @@ export default function RulesModal({ t, onClose }) {
   const [applying, setApplying] = useState(false);
   const [applyStatus, setApplyStatus] = useState("");
   const [applyFeedback, setApplyFeedback] = useState(null);
-  const [coverStyle, setCoverStyle] = useState(() => {
-    return localStorage.getItem("clc_cover_style") || "full";
-  });
   const [resetUnmatched, setResetUnmatched] = useState(() => {
     return localStorage.getItem("clc_reset_unmatched") === "true";
   });
-
-  const handleCoverStyleChange = (style) => {
-    setCoverStyle(style);
-    localStorage.setItem("clc_cover_style", style);
-  };
 
   const handleResetUnmatchedChange = (val) => {
     setResetUnmatched(val);
@@ -287,7 +280,10 @@ export default function RulesModal({ t, onClose }) {
     if (!selectedRule) return;
     if (selectedRule.conds && selectedRule.conds.length >= 6) return;
 
-    const nextConds = [...(selectedRule.conds || []), { p: "High" }];
+    const nextConds = [
+      ...(selectedRule.conds || []),
+      { type: "due_date", value: "overdue" },
+    ];
     updateSelectedRule({ conds: nextConds });
   };
 
@@ -300,11 +296,22 @@ export default function RulesModal({ t, onClose }) {
     updateSelectedRule({ conds: nextConds });
   };
 
-  // Conditions Trigger: Update priority in condition
-  const handleConditionPriorityChange = (indexToUpdate, newPriority) => {
+  // Conditions Trigger: Update condition type
+  const handleConditionTypeChange = (indexToUpdate, newType) => {
+    if (!selectedRule || !selectedRule.conds) return;
+    const defaultVal =
+      (CONDITION_OPTIONS[newType] && CONDITION_OPTIONS[newType][0]?.value) || "";
+    const nextConds = selectedRule.conds.map((c, idx) =>
+      idx === indexToUpdate ? { ...c, type: newType, value: defaultVal } : c
+    );
+    updateSelectedRule({ conds: nextConds });
+  };
+
+  // Conditions Trigger: Update condition value
+  const handleConditionValueChange = (indexToUpdate, newValue) => {
     if (!selectedRule || !selectedRule.conds) return;
     const nextConds = selectedRule.conds.map((c, idx) =>
-      idx === indexToUpdate ? { ...c, p: newPriority } : c
+      idx === indexToUpdate ? { ...c, value: newValue } : c
     );
     updateSelectedRule({ conds: nextConds });
   };
@@ -323,7 +330,7 @@ export default function RulesModal({ t, onClose }) {
 
     try {
       const res = await applyRulesToBoardCards(t, rules, {
-        coverStyle,
+        coverStyle: "normal",
         resetUnmatched,
         onProgress: (status) => setApplyStatus(status),
       });
@@ -455,11 +462,23 @@ export default function RulesModal({ t, onClose }) {
     const targetText = selectedRule.all
       ? "any list on board"
       : `[${(selectedRule.lists || []).join(", ")}]`;
-    const condText = (selectedRule.conds || [])
-      .map((c) => (c.p === "Any" ? "[Any Card in List]" : `[Priority = ${c.p}]`))
-      .join(` ${selectedRule.logic || "AND"} `);
+
+    const condDescriptions = (selectedRule.conds || []).map((c) => {
+      const type = c.type || (c.p ? "priority" : "due_date");
+      const val = c.value || c.p || "overdue";
+      const opts = CONDITION_OPTIONS[type] || [];
+      const foundOpt = opts.find((o) => o.value === val);
+      const cleanLabel = foundOpt
+        ? foundOpt.label.replace(/^[^\w\s]+/, "").trim()
+        : val;
+      const typeObj = CONDITION_TYPES.find((t) => t.id === type);
+      const typeName = typeObj ? typeObj.label : "Condition";
+      return `[${typeName}: ${cleanLabel}]`;
+    });
+
+    const condText = condDescriptions.join(` ${selectedRule.logic || "AND"} `);
     const ruleIdx = rules.findIndex((r) => r.id === selectedRule.id) + 1;
-    formulaSummary = `Rule #${ruleIdx}: If card in ${targetText} matches ${condText} → Style list with ${activePreset.name} accent.`;
+    formulaSummary = `Rule #${ruleIdx}: If list matches ${condText || "[Any Card]"} → Apply ${activePreset.name} top banner.`;
   }
 
   return (
@@ -751,47 +770,70 @@ export default function RulesModal({ t, onClose }) {
                   </div>
 
                   <div className="conditions-stack">
-                    {(selectedRule.conds || [{ p: "Urgent" }]).map((cond, idx) => {
+                    {(selectedRule.conds || [{ type: "due_date", value: "overdue" }]).map((cond, idx) => {
                       const canRemove =
                         selectedRule.conds && selectedRule.conds.length > 1;
+                      const condType = cond.type || (cond.p ? "priority" : "due_date");
+                      const condVal = cond.value || cond.p || "overdue";
+                      const optionsForType = CONDITION_OPTIONS[condType] || [];
 
                       return (
                         <div key={idx} className="condition-statement-card">
-                          <div className="condition-controls-sentence">
-                            <span className="cond-sentence-label">List has card with</span>
-                            <div className="type-badge-pill">
-                              <span>⚡</span>
-                              <span>Priority</span>
-                            </div>
-
-                            <span className="cond-sentence-label">equal to</span>
-
-                            <select
-                              className="select-priority-styled"
-                              value={cond.p}
-                              onChange={(e) =>
-                                handleConditionPriorityChange(idx, e.target.value)
-                              }
-                            >
-                              {PRIORITIES.map((p) => (
-                                <option key={p} value={p}>
-                                  {p === "Any" ? "✨ Any Card (Always Match)" : `${p} Priority`}
-                                </option>
-                              ))}
-                            </select>
+                          <div className="condition-card-header">
+                            <span className="condition-step-tag">CONDITION #{idx + 1}</span>
+                            {canRemove && (
+                              <button
+                                type="button"
+                                className="btn-remove-condition-styled"
+                                onClick={() => handleRemoveCondition(idx)}
+                                title="Remove condition"
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <polyline points="3 6 5 6 21 6" />
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                </svg>
+                                <span>Remove</span>
+                              </button>
+                            )}
                           </div>
 
-                          {canRemove && (
-                            <button
-                              type="button"
-                              className="btn-remove-condition-clean"
-                              onClick={() => handleRemoveCondition(idx)}
-                              title="Remove condition"
-                              aria-label="Remove Condition"
-                            >
-                              ✕
-                            </button>
-                          )}
+                          <div className="condition-controls-row">
+                            <div className="condition-field-group">
+                              <label className="condition-field-label">Type:</label>
+                              <select
+                                className="select-condition-type"
+                                value={condType}
+                                onChange={(e) =>
+                                  handleConditionTypeChange(idx, e.target.value)
+                                }
+                              >
+                                {CONDITION_TYPES.map((ct) => (
+                                  <option key={ct.id} value={ct.id}>
+                                    {ct.icon} {ct.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <span className="condition-arrow-separator">→</span>
+
+                            <div className="condition-field-group is-flex-1">
+                              <label className="condition-field-label">Option:</label>
+                              <select
+                                className="select-condition-value"
+                                value={condVal}
+                                onChange={(e) =>
+                                  handleConditionValueChange(idx, e.target.value)
+                                }
+                              >
+                                {optionsForType.map((opt) => (
+                                  <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
                         </div>
                       );
                     })}
@@ -865,25 +907,9 @@ export default function RulesModal({ t, onClose }) {
                 {/* 6. Board Color Synchronization & Apply Bar */}
                 <div className="board-apply-bar">
                   <div className="apply-options-group">
-                    <div className="style-segmented-control">
-                      <button
-                        type="button"
-                        className={`style-btn ${coverStyle === "full" ? "is-active" : ""}`}
-                        onClick={() => handleCoverStyleChange("full")}
-                        title="Fills entire card body with solid color (matches Trello full solid covers)"
-                      >
-                        <span>🎴</span>
-                        <span>Solid Cards</span>
-                      </button>
-                      <button
-                        type="button"
-                        className={`style-btn ${coverStyle === "normal" ? "is-active" : ""}`}
-                        onClick={() => handleCoverStyleChange("normal")}
-                        title="Adds colored header banner strip to top of each card"
-                      >
-                        <span>🏷️</span>
-                        <span>Top Banner</span>
-                      </button>
+                    <div className="banner-badge-indicator">
+                      <span>🏷️</span>
+                      <span>Top Card Banner</span>
                     </div>
 
                     <label
