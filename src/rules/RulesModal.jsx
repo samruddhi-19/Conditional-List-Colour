@@ -52,9 +52,17 @@ export default function RulesModal({ t, onClose }) {
   const [applying, setApplying] = useState(false);
   const [applyStatus, setApplyStatus] = useState("");
   const [applyFeedback, setApplyFeedback] = useState(null);
-  const [resetUnmatched, setResetUnmatched] = useState(() => {
-    return localStorage.getItem("clc_reset_unmatched") === "true";
+  const [cardScope, setCardScope] = useState(() => {
+    return localStorage.getItem("clc_card_scope") || "matching";
   });
+  const [resetUnmatched, setResetUnmatched] = useState(() => {
+    return localStorage.getItem("clc_reset_unmatched") !== "false";
+  });
+
+  const handleCardScopeChange = (scope) => {
+    setCardScope(scope);
+    localStorage.setItem("clc_card_scope", scope);
+  };
 
   const handleResetUnmatchedChange = (val) => {
     setResetUnmatched(val);
@@ -331,6 +339,7 @@ export default function RulesModal({ t, onClose }) {
     try {
       const res = await applyRulesToBoardCards(t, rules, {
         coverStyle: "normal",
+        cardScope,
         resetUnmatched,
         onProgress: (status) => setApplyStatus(status),
       });
@@ -907,6 +916,25 @@ export default function RulesModal({ t, onClose }) {
                 {/* 6. Board Color Synchronization & Apply Bar */}
                 <div className="board-apply-bar">
                   <div className="apply-options-group">
+                    <div className="card-scope-segmented">
+                      <button
+                        type="button"
+                        className={`scope-pill-btn ${cardScope === "matching" ? "is-active" : ""}`}
+                        onClick={() => handleCardScopeChange("matching")}
+                        title="Strictly colors only cards that meet the condition (e.g. only cards that are overdue)"
+                      >
+                        <span>🎯 Matching Cards</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`scope-pill-btn ${cardScope === "all" ? "is-active" : ""}`}
+                        onClick={() => handleCardScopeChange("all")}
+                        title="Colors all cards in the list if the list matches"
+                      >
+                        <span>📋 Entire List</span>
+                      </button>
+                    </div>
+
                     <div className="banner-badge-indicator">
                       <span>🏷️</span>
                       <span>Top Card Banner</span>

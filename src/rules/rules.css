@@ -952,6 +952,41 @@
   flex-wrap: wrap;
 }
 
+.card-scope-segmented {
+  display: inline-flex;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.scope-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.scope-pill-btn:hover:not(.is-active) {
+  color: var(--text);
+  background-color: var(--surface-card-hover);
+}
+
+.scope-pill-btn.is-active {
+  background-color: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 .banner-badge-indicator {
   display: inline-flex;
   align-items: center;

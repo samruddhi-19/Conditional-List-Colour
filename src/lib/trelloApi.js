@@ -282,6 +282,107 @@ export function detectCardPriorities(card) {
 }
 
 /**
+ * Checks whether a specific card matches a given rule
+ */
+export function doesCardMatchRule(rule, card, listCards = [], listName = "") {
+  if (!rule.on) return false;
+
+  // Check target lists
+  if (!rule.all) {
+    const targetLists = rule.lists || [];
+    const matchesTarget = targetLists.some(
+      (tgt) => tgt.trim().toLowerCase() === listName.trim().toLowerCase()
+    );
+    if (!matchesTarget) return false;
+  }
+
+  const conds = rule.conds || [];
+  if (conds.length === 0) return true;
+
+  const testCard = (c) => {
+    const type = c.type || (c.p ? "priority" : "due_date");
+    const val = c.value || c.p || "overdue";
+
+    // 1. Task count (Number of Task - evaluated on list volume)
+    if (type === "task_count") {
+      const count = listCards.length;
+      if (val === "gt_10") return count > 10;
+      if (val === "gt_5") return count > 5;
+      if (val === "gt_3") return count > 3;
+      if (val === "lt_3") return count > 0 && count < 3;
+      if (val === "empty") return count === 0;
+      if (val === "has_tasks") return count > 0;
+      return false;
+    }
+
+    // 2. Due date (strictly evaluates this specific card!)
+    if (type === "due_date") {
+      if (val === "no_date") return !card.due;
+      if (!card.due) return false; // If card has NO due date, it is NOT overdue!
+
+      const dueTime = new Date(card.due).getTime();
+      const isComplete = Boolean(card.dueComplete);
+
+      if (val === "complete") return isComplete;
+      if (isComplete) return false; // Completed cards are not overdue
+
+      const now = Date.now();
+      const startOfToday = new Date().setHours(0, 0, 0, 0);
+      const endOfToday = new Date().setHours(23, 59, 59, 999);
+      const oneDayMs = 24 * 60 * 60 * 1000;
+      const sevenDaysMs = 7 * oneDayMs;
+
+      if (val === "overdue") {
+        // Must be in the past!
+        return dueTime < now || Boolean(card.overdue);
+      }
+      if (val === "today") return dueTime >= startOfToday && dueTime <= endOfToday;
+      if (val === "tomorrow") return dueTime >= now && dueTime <= now + oneDayMs;
+      if (val === "week") return dueTime >= now && dueTime <= now + sevenDaysMs;
+      return false;
+    }
+
+    // 3. Checklist
+    if (type === "checklist") {
+      const badges = card.badges || {};
+      const total =
+        badges.checkItems !== undefined
+          ? badges.checkItems
+          : card.count
+            ? parseInt(card.count, 10)
+            : 0;
+      const checked =
+        badges.checkItemsChecked !== undefined
+          ? badges.checkItemsChecked
+          : card.done
+            ? total
+            : 0;
+
+      if (val === "no_checklist") return total === 0;
+      if (val === "has_checklist") return total > 0;
+      if (val === "incomplete") return total > 0 && checked < total;
+      if (val === "complete") return total > 0 && checked === total;
+      return false;
+    }
+
+    // 4. Priority
+    if (type === "priority") {
+      if (val === "Any") return true;
+      const cardPriorities = detectCardPriorities(card);
+      return cardPriorities.includes(val);
+    }
+
+    return false;
+  };
+
+  if (rule.logic === "OR") {
+    return conds.some(testCard);
+  } else {
+    return conds.every(testCard);
+  }
+}
+
+/**
  * Broadcasts rules update to parent window & Chrome extension
  */
 function notifyExtension(rules) {
@@ -311,7 +412,8 @@ function notifyExtension(rules) {
 export async function applyRulesToBoardCards(t, rules = [], options = {}) {
   const {
     coverStyle = "normal", // Always 'normal' for top banner accent
-    resetUnmatched = false,
+    cardScope = "matching", // 'matching' = only cards meeting the condition get banner; 'all' = all cards in list
+    resetUnmatched = true, // Clear color banners from cards that don't match any rule
     onProgress = () => {},
   } = options;
 
@@ -354,7 +456,7 @@ export async function applyRulesToBoardCards(t, rules = [], options = {}) {
     };
   }
 
-  onProgress("Evaluating rules against lists…", 30);
+  onProgress("Evaluating rules against cards…", 30);
 
   // Group cards by list ID
   const cardsByList = {};
@@ -374,46 +476,58 @@ export async function applyRulesToBoardCards(t, rules = [], options = {}) {
   for (const list of lists) {
     const listCards = cardsByList[list.id] || [];
 
-    // Collect all priorities across cards in this list
-    const listPriorities = new Set();
-    for (const card of listCards) {
-      const cardPriorities = detectCardPriorities(card);
-      cardPriorities.forEach((p) => listPriorities.add(p));
+    // Optional list-wide rule if user explicitly chose "all"
+    let listWideRule = null;
+    if (cardScope === "all") {
+      const listPriorities = new Set();
+      for (const card of listCards) {
+        const cardPriorities = detectCardPriorities(card);
+        cardPriorities.forEach((p) => listPriorities.add(p));
+      }
+      listWideRule = getMatchingRule(
+        {
+          name: list.name,
+          cards: listCards,
+          c: Array.from(listPriorities),
+        },
+        rules
+      );
     }
 
-    const listObj = {
-      name: list.name,
-      cards: listCards,
-      c: Array.from(listPriorities),
-    };
+    for (const card of listCards) {
+      let matchedRule = null;
 
-    // Find first matching rule
-    const matchingRule = getMatchingRule(listObj, rules);
+      if (cardScope === "all") {
+        matchedRule = listWideRule;
+      } else {
+        // Strictly evaluate each rule against THIS specific card
+        for (const rule of rules) {
+          if (doesCardMatchRule(rule, card, listCards, list.name)) {
+            matchedRule = rule;
+            break;
+          }
+        }
+      }
 
-    if (matchingRule) {
-      const trelloColor =
-        TRELLO_COVER_COLORS[matchingRule.color] || matchingRule.color || "blue";
-      const targetSize = coverStyle;
+      const currentCover = card.cover || {};
 
-      for (const card of listCards) {
-        const currentCover = card.cover || {};
-        const isAlreadyMatching =
-          currentCover.color === trelloColor &&
-          currentCover.size === targetSize;
+      if (matchedRule) {
+        const trelloColor =
+          TRELLO_COVER_COLORS[matchedRule.color] || matchedRule.color || "blue";
 
-        if (!isAlreadyMatching) {
+        if (currentCover.color !== trelloColor || currentCover.size !== "normal") {
           updatesQueue.push({
             card,
             color: trelloColor,
-            size: targetSize,
+            size: "normal",
             listName: list.name,
           });
           affectedListNames.add(list.name);
         }
-      }
-    } else if (resetUnmatched) {
-      for (const card of listCards) {
-        if (card.cover && card.cover.color) {
+      } else if (resetUnmatched) {
+        // If card does NOT match (e.g. card is not overdue or has no due date),
+        // remove the color banner so it is NOT falsely styled as overdue!
+        if (currentCover.color) {
           updatesQueue.push({
             card,
             color: null,
