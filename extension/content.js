@@ -109,7 +109,10 @@
         event.source.postMessage({ type: "CLC_BOARD_LISTS_RESPONSE", lists }, "*");
       }
     }
-    if (event.data && event.data.type === "CLC_RULES_UPDATED") {
+    if (
+      event.data &&
+      (event.data.type === "CLC_RULES_UPDATED" || event.data.type === "CLC_APPLY_NOW")
+    ) {
       if (Array.isArray(event.data.rules)) {
         currentRules = event.data.rules;
         applyRulesToBoard();
@@ -203,7 +206,7 @@
     const conds = rule.conds || [];
     if (conds.length === 0) return true;
 
-    const testCondition = (c) => allPriorities.includes(c.p);
+    const testCondition = (c) => c.p === "Any" || allPriorities.includes(c.p);
 
     if (rule.logic === "OR") {
       return conds.some(testCondition);
@@ -365,7 +368,9 @@
     const iframe = document.createElement("iframe");
     iframe.className = "clc-modal-iframe";
     const listsQuery = encodeURIComponent(JSON.stringify(liveLists));
-    iframe.src = chrome.runtime.getURL(`rules.html?lists=${listsQuery}`);
+    const boardMatch = window.location.pathname.match(/\/b\/([a-zA-Z0-9]+)/);
+    const boardParam = boardMatch && boardMatch[1] ? `&board=${encodeURIComponent(boardMatch[1])}` : "";
+    iframe.src = chrome.runtime.getURL(`rules.html?lists=${listsQuery}${boardParam}`);
 
     frame.appendChild(header);
     frame.appendChild(iframe);

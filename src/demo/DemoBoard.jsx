@@ -53,6 +53,7 @@ export default function DemoBoard() {
 
   // Mock Trello object for standalone / demo testing
   const mockT = {
+    isDemo: true,
     get: async (scope, visibility, key) => {
       try {
         const val = localStorage.getItem(`demo_${scope}_${key}`);

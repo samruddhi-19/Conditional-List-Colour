@@ -27,7 +27,7 @@ export const COLOR_PRESETS = [
   { name: "Slate Charcoal", key: "slate", hex: "#626f86", subtitle: "Archived & Other" },
 ];
 
-export const PRIORITIES = ["Urgent", "High", "Medium", "Low"];
+export const PRIORITIES = ["Urgent", "High", "Medium", "Low", "Any"];
 
 export const BOARD_LIST_NAMES = [
   "Sprint Backlog",
@@ -195,7 +195,11 @@ export function evaluateRuleMatch(rule, list) {
 
   const listName = list.n || list.name || "";
   if (!rule.all) {
-    if (!rule.lists || !rule.lists.includes(listName)) {
+    const targetLists = rule.lists || [];
+    const matchesTarget = targetLists.some(
+      (tgt) => tgt.trim().toLowerCase() === listName.trim().toLowerCase()
+    );
+    if (!matchesTarget) {
       return false;
     }
   }
@@ -213,7 +217,7 @@ export function evaluateRuleMatch(rule, list) {
   const conds = rule.conds || [];
   if (conds.length === 0) return true;
 
-  const testCondition = (c) => priorities.includes(c.p);
+  const testCondition = (c) => c.p === "Any" || priorities.includes(c.p);
 
   if (rule.logic === "OR") {
     return conds.some(testCondition);

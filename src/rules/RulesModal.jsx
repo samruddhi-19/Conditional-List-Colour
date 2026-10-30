@@ -9,7 +9,18 @@ import {
   saveRules,
   STORAGE_KEY_THEME,
 } from "../lib/rulesStorage.js";
-import { getBoardLists as fetchApiBoardLists } from "../lib/trelloApi.js";
+import {
+  getBoardLists as fetchApiBoardLists,
+  applyRulesToBoardCards,
+  clearBoardColors,
+  NOT_AUTHORIZED,
+} from "../lib/trelloApi.js";
+import {
+  buildAuthorizeUrl,
+  saveToken,
+  AUTH_MESSAGE_SOURCE,
+  BROADCAST_CHANNEL_NAME,
+} from "../lib/auth.js";
 import "./rules.css";
 
 export default function RulesModal({ t, onClose }) {
@@ -35,6 +46,27 @@ export default function RulesModal({ t, onClose }) {
   const [selectedId, setSelectedId] = useState(null);
   const [theme, setTheme] = useState("dark");
   const [loading, setLoading] = useState(true);
+
+  // Apply & Synchronization states
+  const [applying, setApplying] = useState(false);
+  const [applyStatus, setApplyStatus] = useState("");
+  const [applyFeedback, setApplyFeedback] = useState(null);
+  const [coverStyle, setCoverStyle] = useState(() => {
+    return localStorage.getItem("clc_cover_style") || "full";
+  });
+  const [resetUnmatched, setResetUnmatched] = useState(() => {
+    return localStorage.getItem("clc_reset_unmatched") === "true";
+  });
+
+  const handleCoverStyleChange = (style) => {
+    setCoverStyle(style);
+    localStorage.setItem("clc_cover_style", style);
+  };
+
+  const handleResetUnmatchedChange = (val) => {
+    setResetUnmatched(val);
+    localStorage.setItem("clc_reset_unmatched", val ? "true" : "false");
+  };
 
   // Initialize theme
   useEffect(() => {
@@ -282,6 +314,141 @@ export default function RulesModal({ t, onClose }) {
 
   const activeRulesCount = rules.filter((r) => r.on).length;
 
+  // Apply colors to Trello board
+  const handleApplyColors = async () => {
+    if (applying) return;
+    setApplying(true);
+    setApplyStatus("Preparing board synchronization…");
+    setApplyFeedback(null);
+
+    try {
+      const res = await applyRulesToBoardCards(t, rules, {
+        coverStyle,
+        resetUnmatched,
+        onProgress: (status) => setApplyStatus(status),
+      });
+
+      setApplyFeedback({
+        type: "success",
+        text: res.message || "✓ Successfully applied colors to board!",
+      });
+    } catch (err) {
+      if (err.message === NOT_AUTHORIZED) {
+        setApplyFeedback({
+          type: "error",
+          text: "Trello authorization required to update card colors on your board.",
+          requiresAuth: true,
+        });
+      } else {
+        setApplyFeedback({
+          type: "error",
+          text: `Failed to apply colors: ${err.message || "Unknown error"}`,
+        });
+      }
+    } finally {
+      setApplying(false);
+      setApplyStatus("");
+    }
+  };
+
+  // Reset / Clear board colors
+  const handleClearColors = async () => {
+    if (applying) return;
+    const confirmed = window.confirm(
+      "Reset all card colors on this board back to default?"
+    );
+    if (!confirmed) return;
+
+    setApplying(true);
+    setApplyStatus("Scanning colored cards…");
+    setApplyFeedback(null);
+
+    try {
+      const res = await clearBoardColors(t, (status) => setApplyStatus(status));
+      setApplyFeedback({
+        type: "info",
+        text: res.message || "✓ Card colors cleared.",
+      });
+    } catch (err) {
+      if (err.message === NOT_AUTHORIZED) {
+        setApplyFeedback({
+          type: "error",
+          text: "Trello authorization required to clear card covers.",
+          requiresAuth: true,
+        });
+      } else {
+        setApplyFeedback({
+          type: "error",
+          text: `Failed to reset colors: ${err.message || "Unknown error"}`,
+        });
+      }
+    } finally {
+      setApplying(false);
+      setApplyStatus("");
+    }
+  };
+
+  // Authorize with Trello
+  const handleAuthorize = () => {
+    const returnUrl = new URL("./authorized.html", window.location.href).href;
+    const authUrl = buildAuthorizeUrl(returnUrl);
+
+    const popup = window.open(
+      authUrl,
+      "trello-auth",
+      "width=600,height=720,menubar=0,toolbar=0"
+    );
+
+    if (!popup && t && typeof t.popup === "function") {
+      t.popup({
+        title: "Authorize Conditional List Colors",
+        url: "./auth.html",
+        height: 380,
+      });
+    }
+
+    setApplyFeedback({
+      type: "info",
+      text: "Waiting for authorization in popup…",
+    });
+
+    let bc = null;
+    const cleanup = () => {
+      window.removeEventListener("message", onMessage);
+      try {
+        if (bc) bc.close();
+      } catch (e) {}
+    };
+
+    const onTokenReceived = async (token) => {
+      cleanup();
+      await saveToken(t, token);
+      setApplyFeedback({
+        type: "success",
+        text: "Authorized successfully! Applying colors now…",
+      });
+      setTimeout(() => {
+        handleApplyColors();
+      }, 500);
+    };
+
+    function onMessage(event) {
+      if (event.data && event.data.source === AUTH_MESSAGE_SOURCE && event.data.token) {
+        onTokenReceived(event.data.token);
+      }
+    }
+    window.addEventListener("message", onMessage);
+
+    try {
+      bc = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
+      bc.onmessage = (event) => {
+        if (event.data && event.data.token) {
+          onTokenReceived(event.data.token);
+        }
+      };
+    } catch (e) {}
+  };
+
   // Generate natural formula summary
   let formulaSummary = "";
   if (selectedRule) {
@@ -289,7 +456,7 @@ export default function RulesModal({ t, onClose }) {
       ? "any list on board"
       : `[${(selectedRule.lists || []).join(", ")}]`;
     const condText = (selectedRule.conds || [])
-      .map((c) => `[Priority = ${c.p}]`)
+      .map((c) => (c.p === "Any" ? "[Any Card in List]" : `[Priority = ${c.p}]`))
       .join(` ${selectedRule.logic || "AND"} `);
     const ruleIdx = rules.findIndex((r) => r.id === selectedRule.id) + 1;
     formulaSummary = `Rule #${ruleIdx}: If card in ${targetText} matches ${condText} → Style list with ${activePreset.name} accent.`;
@@ -311,6 +478,26 @@ export default function RulesModal({ t, onClose }) {
           </div>
 
           <div className="studio-toolbar-actions">
+            <button
+              type="button"
+              className="btn-toolbar-apply"
+              onClick={handleApplyColors}
+              disabled={applying}
+              title="Apply matching colors to cards on your Trello board"
+            >
+              {applying ? (
+                <>
+                  <span className="apply-spinner" />
+                  <span>Applying…</span>
+                </>
+              ) : (
+                <>
+                  <span className="btn-lightning-icon">⚡</span>
+                  <span>Apply Colors to Board</span>
+                </>
+              )}
+            </button>
+
             <button
               type="button"
               className="theme-pill-btn"
@@ -588,7 +775,7 @@ export default function RulesModal({ t, onClose }) {
                             >
                               {PRIORITIES.map((p) => (
                                 <option key={p} value={p}>
-                                  {p} Priority
+                                  {p === "Any" ? "✨ Any Card (Always Match)" : `${p} Priority`}
                                 </option>
                               ))}
                             </select>
@@ -674,6 +861,108 @@ export default function RulesModal({ t, onClose }) {
                   <span className="formula-icon">⚡</span>
                   <span className="formula-text">{formulaSummary}</span>
                 </div>
+
+                {/* 6. Board Color Synchronization & Apply Bar */}
+                <div className="board-apply-bar">
+                  <div className="apply-options-group">
+                    <div className="style-segmented-control">
+                      <button
+                        type="button"
+                        className={`style-btn ${coverStyle === "full" ? "is-active" : ""}`}
+                        onClick={() => handleCoverStyleChange("full")}
+                        title="Fills entire card body with solid color (matches Trello full solid covers)"
+                      >
+                        <span>🎴</span>
+                        <span>Solid Cards</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`style-btn ${coverStyle === "normal" ? "is-active" : ""}`}
+                        onClick={() => handleCoverStyleChange("normal")}
+                        title="Adds colored header banner strip to top of each card"
+                      >
+                        <span>🏷️</span>
+                        <span>Top Banner</span>
+                      </button>
+                    </div>
+
+                    <label
+                      className="checkbox-unmatched-label"
+                      title="Remove cover colors from cards in lists that do not match any rule"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={resetUnmatched}
+                        onChange={(e) => handleResetUnmatchedChange(e.target.checked)}
+                      />
+                      <span>Clear unmatched lists</span>
+                    </label>
+                  </div>
+
+                  <div className="apply-actions-group">
+                    <button
+                      type="button"
+                      className="btn-clear-colors"
+                      onClick={handleClearColors}
+                      disabled={applying}
+                      title="Remove all card cover colors from board"
+                    >
+                      <span>↺</span>
+                      <span>Reset Colors</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-apply-primary"
+                      onClick={handleApplyColors}
+                      disabled={applying}
+                      title="Evaluate all rules and apply matching colors to cards on your board"
+                    >
+                      {applying ? (
+                        <>
+                          <span className="apply-spinner" />
+                          <span>{applyStatus || "Applying…"}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="btn-lightning-icon">⚡</span>
+                          <span>Apply Colors to Board</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* 7. Feedback Notification Banner */}
+                {applyFeedback && (
+                  <div className={`apply-feedback-banner is-${applyFeedback.type}`}>
+                    <div className="feedback-content">
+                      <span className="feedback-icon">
+                        {applyFeedback.type === "success" && "✓"}
+                        {applyFeedback.type === "info" && "ℹ️"}
+                        {applyFeedback.type === "error" && "⚠️"}
+                      </span>
+                      <span className="feedback-text">{applyFeedback.text}</span>
+                    </div>
+                    {applyFeedback.requiresAuth && (
+                      <button
+                        type="button"
+                        className="btn-feedback-action"
+                        onClick={handleAuthorize}
+                      >
+                        Authorize with Trello
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="feedback-dismiss-btn"
+                      onClick={() => setApplyFeedback(null)}
+                      aria-label="Dismiss message"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </main>
