@@ -1,5 +1,6 @@
 /* global TrelloPowerUp */
 import { isAuthorized } from "../lib/auth.js";
+import { detectCardPriorities } from "../lib/trelloApi.js";
 
 const ICON_URL =
   typeof window !== "undefined"
@@ -119,5 +120,98 @@ TrelloPowerUp.initialize({
         },
       },
     ];
+  },
+
+  // Capability: Show Priority badge on front of card on board
+  "card-badges": async function (t) {
+    try {
+      const card = await t.card("name", "labels", "due", "dueComplete");
+      const priorities = detectCardPriorities(card);
+      if (!priorities || priorities.length === 0) return [];
+
+      const topPriority = priorities[0];
+      const badgeConfig = {
+        Urgent: { text: "⚡ Urgent", color: "red" },
+        High: { text: "🔥 High", color: "orange" },
+        Medium: { text: "🟡 Med", color: "yellow" },
+        Low: { text: "🟢 Low", color: "green" },
+      };
+
+      const cfg = badgeConfig[topPriority];
+      if (!cfg) return [];
+
+      return [
+        {
+          text: cfg.text,
+          color: cfg.color,
+        },
+      ];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  // Capability: Show Priority badge on back of card (inside card detail modal)
+  "card-detail-badges": async function (t) {
+    try {
+      const card = await t.card("name", "labels", "due", "dueComplete");
+      const priorities = detectCardPriorities(card);
+
+      if (!priorities || priorities.length === 0) {
+        return [
+          {
+            title: "Priority",
+            text: "Normal / None",
+            color: "light-gray",
+            callback: function (context) {
+              return context.modal({
+                url: "./rules.html",
+                accentColor: "#22272b",
+                height: 720,
+                width: 1020,
+                title: "Conditional List Color Rule Studio",
+              });
+            },
+          },
+        ];
+      }
+
+      const topPriority = priorities[0];
+      const isOverdue =
+        card.due &&
+        !card.dueComplete &&
+        new Date(card.due).getTime() < Date.now();
+
+      const detailText =
+        isOverdue && topPriority === "Urgent"
+          ? "⚡ Urgent (Overdue)"
+          : `${topPriority} Priority`;
+
+      const colorMap = {
+        Urgent: "red",
+        High: "orange",
+        Medium: "yellow",
+        Low: "green",
+      };
+
+      return [
+        {
+          title: "Detected Priority",
+          text: detailText,
+          color: colorMap[topPriority] || "blue",
+          callback: function (context) {
+            return context.modal({
+              url: "./rules.html",
+              accentColor: "#22272b",
+              height: 720,
+              width: 1020,
+              title: "Conditional List Color Rule Studio",
+            });
+          },
+        },
+      ];
+    } catch (e) {
+      return [];
+    }
   },
 });
