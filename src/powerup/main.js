@@ -70,7 +70,7 @@ TrelloPowerUp.initialize({
             url: `./rules.html${query}`,
             accentColor: "#22272b",
             fullscreen: false,
-            height: 720,
+            height: 640,
             width: 1020,
             title: "Conditional List Color Rule Studio",
           });
@@ -113,7 +113,7 @@ TrelloPowerUp.initialize({
             url: `./rules.html${query}`,
             accentColor: "#22272b",
             fullscreen: false,
-            height: 720,
+            height: 640,
             width: 1020,
             title: "Conditional List Color Rule Studio",
           });
@@ -167,7 +167,7 @@ TrelloPowerUp.initialize({
               return context.modal({
                 url: "./rules.html",
                 accentColor: "#22272b",
-                height: 720,
+                height: 640,
                 width: 1020,
                 title: "Conditional List Color Rule Studio",
               });
@@ -203,7 +203,7 @@ TrelloPowerUp.initialize({
             return context.modal({
               url: "./rules.html",
               accentColor: "#22272b",
-              height: 720,
+              height: 640,
               width: 1020,
               title: "Conditional List Color Rule Studio",
             });

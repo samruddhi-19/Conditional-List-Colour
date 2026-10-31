@@ -50,6 +50,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overflow: hidden !important;
   animation: clc-fade-in 0.18s ease-out;
 }
 
@@ -126,5 +127,6 @@
   height: calc(100% - 44px);
   border: none;
   background-color: #161b22;
+  overflow: hidden !important;
 }
 

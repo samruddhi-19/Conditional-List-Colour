@@ -193,7 +193,7 @@ export default function DemoBoard() {
 
       {/* Rule Studio View */}
       {activeView === "rules" && (
-        <div style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", minHeight: 0 }}>
           <RulesModal t={mockT} onClose={() => setActiveView("board")} />
         </div>
       )}

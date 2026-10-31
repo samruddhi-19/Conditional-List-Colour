@@ -485,7 +485,7 @@ export default function RulesModal({ t, onClose }) {
       return `[${typeName}: ${cleanLabel}]`;
     });
 
-    const condText = condDescriptions.join(` ${selectedRule.logic || "AND"} `);
+    const condText = condDescriptions.join(" AND ");
     const ruleIdx = rules.findIndex((r) => r.id === selectedRule.id) + 1;
     formulaSummary = `Rule #${ruleIdx}: If list matches ${condText || "[Any Card]"} → Apply ${activePreset.name} top banner.`;
   }
@@ -742,40 +742,17 @@ export default function RulesModal({ t, onClose }) {
                 <div className="editor-section">
                   <div className="conditions-header-row">
                     <span className="editor-section-eyebrow">When Conditions Match</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <div className="logic-pill-control">
-                        <button
-                          type="button"
-                          className={`logic-toggle-item ${
-                            selectedRule.logic === "AND" ? "is-selected" : ""
-                          }`}
-                          onClick={() => updateSelectedRule({ logic: "AND" })}
-                        >
-                          Match ALL (AND)
-                        </button>
-                        <button
-                          type="button"
-                          className={`logic-toggle-item ${
-                            selectedRule.logic === "OR" ? "is-selected" : ""
-                          }`}
-                          onClick={() => updateSelectedRule({ logic: "OR" })}
-                        >
-                          Match ANY (OR)
-                        </button>
-                      </div>
-
-                      <button
-                        type="button"
-                        className="btn-add-condition-styled"
-                        onClick={handleAddCondition}
-                        disabled={selectedRule.conds && selectedRule.conds.length >= 6}
-                        title="Add another condition"
-                      >
-                        <span>+</span>
-                        <span>Add Condition</span>
-                        {selectedRule.conds && selectedRule.conds.length >= 6 && " (6 max)"}
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="btn-add-condition-styled"
+                      onClick={handleAddCondition}
+                      disabled={selectedRule.conds && selectedRule.conds.length >= 6}
+                      title="Add another condition"
+                    >
+                      <span>+</span>
+                      <span>Add Condition</span>
+                      {selectedRule.conds && selectedRule.conds.length >= 6 && " (6 max)"}
+                    </button>
                   </div>
 
                   <div className="conditions-stack">

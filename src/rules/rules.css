@@ -105,7 +105,7 @@
   -webkit-font-smoothing: antialiased;
   display: flex;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 .studio-modal {
@@ -115,7 +115,7 @@
   background-color: var(--surface);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 /* Top Toolbar */
@@ -197,7 +197,7 @@
   min-height: 0;
   max-height: calc(100% - 44px);
   height: calc(100% - 44px);
-  overflow: hidden;
+  overflow: hidden !important;
   box-sizing: border-box;
 }
 
@@ -425,7 +425,6 @@
   min-height: 0;
   max-height: 100%;
   box-sizing: border-box;
-  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
@@ -876,23 +875,27 @@
 }
 
 /* Custom Scrollbars */
+*::-webkit-scrollbar,
 .studio-main-panel::-webkit-scrollbar,
 .sidebar-rules-list::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
+*::-webkit-scrollbar-track,
 .studio-main-panel::-webkit-scrollbar-track,
 .sidebar-rules-list::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
+  background: transparent;
 }
 
+*::-webkit-scrollbar-thumb,
 .studio-main-panel::-webkit-scrollbar-thumb,
 .sidebar-rules-list::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
+*::-webkit-scrollbar-thumb:hover,
 .studio-main-panel::-webkit-scrollbar-thumb:hover,
 .sidebar-rules-list::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbar-thumb-hover);

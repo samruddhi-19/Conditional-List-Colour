@@ -12,7 +12,7 @@
         padding: 0;
         width: 100%;
         height: 100%;
-        overflow: hidden;
+        overflow: hidden !important;
         background: #14181c;
         color: #cbd5e1;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
@@ -22,7 +22,18 @@
       #root {
         width: 100%;
         height: 100%;
-        overflow: hidden;
+        overflow: hidden !important;
+      }
+      *::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      *::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      *::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
       }
       * {
         box-sizing: border-box;
@@ -30,12 +41,12 @@
     </style>
     <!-- Trello Power-Up Client Library -->
     <script src="https://p.trellocdn.com/power-up.min.js"></script>
-    <script type="module" crossorigin src="./assets/rules-D7xmmSDx.js"></script>
+    <script type="module" crossorigin src="./assets/rules-BkkuTNVD.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/auth-CL0wwZkm.js">
     <link rel="modulepreload" crossorigin href="./assets/client-Ds7D3P6J.js">
     <link rel="modulepreload" crossorigin href="./assets/trelloApi-DnYbCRp6.js">
-    <link rel="modulepreload" crossorigin href="./assets/RulesModal-BgnVg9mU.js">
-    <link rel="stylesheet" crossorigin href="./assets/RulesModal-BCiBxwsx.css">
+    <link rel="modulepreload" crossorigin href="./assets/RulesModal-Boormgzj.js">
+    <link rel="stylesheet" crossorigin href="./assets/RulesModal-B0zXsAZf.css">
   </head>
   <body>
     <div id="root"></div>

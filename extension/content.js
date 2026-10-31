@@ -455,6 +455,8 @@
 
     const iframe = document.createElement("iframe");
     iframe.className = "clc-modal-iframe";
+    iframe.setAttribute("scrolling", "no");
+    iframe.style.overflow = "hidden";
     const listsQuery = encodeURIComponent(JSON.stringify(liveLists));
     const boardMatch = window.location.pathname.match(/\/b\/([a-zA-Z0-9]+)/);
     const boardParam = boardMatch && boardMatch[1] ? `&board=${encodeURIComponent(boardMatch[1])}` : "";
@@ -464,12 +466,14 @@
     frame.appendChild(iframe);
     overlay.appendChild(frame);
     document.body.appendChild(overlay);
+    document.body.style.overflow = "hidden";
   }
 
   function closeRulesModal() {
     const overlay = document.getElementById("clc-modal-overlay");
     if (overlay) {
       overlay.remove();
+      document.body.style.overflow = "";
       loadRules();
     }
   }
