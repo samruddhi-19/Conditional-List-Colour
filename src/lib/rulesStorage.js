@@ -31,7 +31,6 @@ export const PRIORITIES = ["Urgent", "High", "Medium", "Low", "Any"];
 
 export const CONDITION_TYPES = [
   { id: "due_date", label: "Due Date", icon: "📅" },
-  { id: "task_count", label: "Number of Task", icon: "🔢" },
   { id: "checklist", label: "Checklist", icon: "☑️" },
   { id: "priority", label: "Priority", icon: "⚡" },
 ];
@@ -44,14 +43,6 @@ export const CONDITION_OPTIONS = {
     { value: "week", label: "🔵 Due This Week" },
     { value: "no_date", label: "⚪ No Due Date Set" },
     { value: "complete", label: "🟢 Due Date Marked Completed" },
-  ],
-  task_count: [
-    { value: "gt_10", label: "🚨 More than 10 Tasks (> 10)" },
-    { value: "gt_5", label: "⚠️ More than 5 Tasks (> 5)" },
-    { value: "gt_3", label: "📊 More than 3 Tasks (> 3)" },
-    { value: "lt_3", label: "📉 Less than 3 Tasks (< 3)" },
-    { value: "empty", label: "📭 Empty List (0 Tasks)" },
-    { value: "has_tasks", label: "✨ Has at least 1 Task" },
   ],
   checklist: [
     { value: "incomplete", label: "⏳ Has Incomplete Checklist Items" },
@@ -130,12 +121,12 @@ export const DEFAULT_RULES = [
   },
   {
     id: 3,
-    name: "Overloaded Backlog Notice",
+    name: "Incomplete Checklist Notice",
     on: true,
     all: false,
     lists: ["Sprint Backlog"],
     logic: "AND",
-    conds: [{ type: "task_count", value: "gt_5" }],
+    conds: [{ type: "checklist", value: "incomplete" }],
     color: "yellow",
   },
   {
